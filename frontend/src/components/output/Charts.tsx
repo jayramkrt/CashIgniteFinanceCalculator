@@ -4,7 +4,6 @@ import {
 } from 'recharts'
 import { useLoanStore } from '@/stores/loanStore'
 import { formatRupees } from '@/utils'
-import dayjs from 'dayjs'
 
 // ── Color palette ─────────────────────────────────────────────────────────────
 const COLORS = {
@@ -99,10 +98,7 @@ export function PrincipalInterestLine() {
 
   // Sample yearly data for the line chart
   const data = result.yearlySchedule.map((row) => ({
-    name: dayjs(result.amortizationSchedule.find(
-      (m) => m.dueDate.startsWith(String(row.year))
-    )?.dueDate ?? '').format('MMM YY') || `Y${row.yearNumber}`,
-    year: row.yearNumber,
+    year: row.year,
     Principal: Math.round(row.totalPrincipal),
     Interest:  Math.round(row.totalInterest),
     Balance:   Math.round(row.closingBalance),
@@ -117,7 +113,7 @@ export function PrincipalInterestLine() {
           <XAxis
             dataKey="year"
             tick={{ fontSize: 11, fill: '#8A8770', fontFamily: 'DM Mono' }}
-            tickFormatter={(v) => `Y${v}`}
+            tickFormatter={(v) => String(v)}
             axisLine={false}
             tickLine={false}
           />
@@ -163,7 +159,7 @@ export function BalanceLine() {
   if (!result) return null
 
   const data = result.yearlySchedule.map((row) => ({
-    year: row.yearNumber,
+    year: row.year,
     Balance: Math.round(row.closingBalance),
     'Loan Paid': parseFloat(row.loanPaidPercentage.toFixed(1)),
   }))
@@ -177,7 +173,7 @@ export function BalanceLine() {
           <XAxis
             dataKey="year"
             tick={{ fontSize: 11, fill: '#8A8770', fontFamily: 'DM Mono' }}
-            tickFormatter={(v) => `Y${v}`}
+            tickFormatter={(v) => String(v)}
             axisLine={false}
             tickLine={false}
           />

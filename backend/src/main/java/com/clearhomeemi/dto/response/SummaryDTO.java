@@ -12,7 +12,7 @@ import java.time.LocalDate;
 public class SummaryDTO {
 
     private BigDecimal emiAmount;
-    private BigDecimal totalPayment;
+    private BigDecimal totalPayment;            // principal + interest + fees
     private BigDecimal totalInterestPayable;
     private BigDecimal totalPrincipal;
     private BigDecimal totalPrepaymentAmount;
@@ -28,7 +28,7 @@ public class SummaryDTO {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate loanEndDate;
 
-    private BigDecimal effectiveAnnualRate;
+    private BigDecimal effectiveAnnualRate;      // XIRR-equivalent
 
     // Interest saver stats (null when feature not used)
     private BigDecimal interestSaverFinalBalance;

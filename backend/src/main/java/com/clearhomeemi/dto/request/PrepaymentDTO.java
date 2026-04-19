@@ -30,6 +30,10 @@ public class PrepaymentDTO {
     @DecimalMin("1.00")
     private BigDecimal amount;
 
+    /**
+     *  1-based month offset from loan start date (e.g. 1 = first EMI month).
+     *   The frontend can send either a numeric offset or resolve a calendar date to offset.
+     */
     @NotNull
     @Min(1)
     private Integer startingMonth;

@@ -7,6 +7,10 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+// ─────────────────────────────────────────────────────────────────────────────
+// One row per calendar month in the amortization schedule
+// ─────────────────────────────────────────────────────────────────────────────
+
 @Data
 @Builder
 public class MonthlyRowDTO {

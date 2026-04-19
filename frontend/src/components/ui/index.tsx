@@ -193,7 +193,7 @@ export function DateInput({ label, value, onChange }: DateInputProps) {
 // ── Payment mode select (reused across feature modules) ───────────────────────
 
 export function PaymentModeSelect({
-  value, onChange, label = 'Payment mode'
+  value, onChange, label
 }: {
   value: PaymentMode
   onChange: (v: PaymentMode) => void
@@ -236,8 +236,8 @@ export function TableGrid<T extends object>({
       {rows.length === 0 ? (
         <p className="text-sm text-ink-400 italic py-2">{emptyMessage}</p>
       ) : (
-        <div className="rounded-xl border border-ink-100 overflow-hidden mb-3">
-          <table className="w-full text-sm">
+        <div className="rounded-xl border border-ink-100 overflow-x-auto mb-3">
+          <table className="w-full min-w-max text-sm">
             <thead>
               <tr className="bg-ink-50">
                 {columns.map((col) => (
@@ -256,7 +256,7 @@ export function TableGrid<T extends object>({
               {rows.map((row, i) => (
                 <tr key={i} className="border-b border-ink-50 last:border-0 hover:bg-sage-50/40">
                   {columns.map((col) => (
-                    <td key={String(col.key)} className="py-2 px-3">
+                    <td key={String(col.key)} className="py-2 px-2 align-middle">
                       {col.render(row, i, (partial) => onChange(i, partial))}
                     </td>
                   ))}

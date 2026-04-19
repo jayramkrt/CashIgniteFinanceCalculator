@@ -1,6 +1,11 @@
 package com.clearhomeemi.service;
 
 import com.clearhomeemi.dto.request.LoanRequestDTO;
+import com.clearhomeemi.dto.request.PrepaymentDTO;
+import com.clearhomeemi.dto.request.InterestChangeDTO;
+import com.clearhomeemi.dto.request.InterestSaverDTO;
+import com.clearhomeemi.dto.request.MoratoriumDTO;
+import com.clearhomeemi.dto.request.FeeDTO;
 import com.clearhomeemi.dto.response.*;
 import com.clearhomeemi.entity.LoanScenario;
 import com.clearhomeemi.repository.LoanScenarioRepository;

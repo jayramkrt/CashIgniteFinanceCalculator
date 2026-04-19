@@ -22,7 +22,7 @@ services:
 
   backend:
     build:
-      context: ./clearhomeemi-backend
+      context: ../backend
       dockerfile: Dockerfile
     container_name: clearhomeemi-backend
     environment:
@@ -37,7 +37,7 @@ services:
 
   frontend:
     build:
-      context: ./clearhomeemi-frontend
+      context: ./
       dockerfile: Dockerfile
     container_name: clearhomeemi-frontend
     ports:

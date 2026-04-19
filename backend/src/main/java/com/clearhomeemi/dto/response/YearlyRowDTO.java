@@ -5,6 +5,9 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Year-level rollup (aggregated from MonthlyRowDTO)
+// ─────────────────────────────────────────────────────────────────────────────
 @Data
 @Builder
 public class YearlyRowDTO {
