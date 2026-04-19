@@ -1,8 +1,8 @@
-package com.emicalculator.engine;
+package com.clearhomeemi.engine;
 
-import com.emicalculator.dto.request.*;
-import com.emicalculator.dto.response.CalculationResultDTO;
-import com.emicalculator.service.LoanCalculationService;
+import com.clearhomeemi.dto.request.*;
+import com.clearhomeemi.dto.response.CalculationResultDTO;
+import com.clearhomeemi.service.LoanCalculationService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -15,7 +15,7 @@ WORKDIR /app
 RUN addgroup -S spring && adduser -S spring -G spring
 USER spring:spring
 
-COPY --from=builder /app/target/emi-calculator-backend-*.jar app.jar
+COPY --from=builder /app/target/clearhomeemi-backend-*.jar app.jar
 
 EXPOSE 8080
 
