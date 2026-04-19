@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+
 @RestController
 @RequestMapping("/api/loan")
 @CrossOrigin(origins = "${app.cors.allowed-origins:http://localhost:5173}")
@@ -44,13 +46,13 @@ public class LoanController {
      */
     @GetMapping("/emi")
     @Operation(summary = "Get EMI amount only (for live slider preview)")
-    public ResponseEntity<BigDecimalResponse> getEmi(
-            @RequestParam java.math.BigDecimal amount,
-            @RequestParam java.math.BigDecimal rate,
+    public ResponseEntity<EmiResponse> getEmi(
+            @RequestParam BigDecimal amount,
+            @RequestParam BigDecimal rate,
             @RequestParam int tenureMonths) {
-        java.math.BigDecimal emi = calculationService.getEmiOnly(amount, rate, tenureMonths);
-        return ResponseEntity.ok(new BigDecimalResponse(emi));
+        BigDecimal emi = calculationService.getEmiOnly(amount, rate, tenureMonths);
+        return ResponseEntity.ok(new EmiResponse(emi));
     }
 
-    record BigDecimalResponse(java.math.BigDecimal value) {}
+    record EmiResponse(BigDecimal value) {}
 }

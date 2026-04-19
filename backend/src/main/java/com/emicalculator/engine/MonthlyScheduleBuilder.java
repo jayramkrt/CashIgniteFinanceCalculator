@@ -149,9 +149,6 @@ public class MonthlyScheduleBuilder {
             // ── Step 3: Calculate interest (offset by ISA balance) ────────
             BigDecimal effectivePrincipal = remainingPrincipal.subtract(isaBalance).max(BigDecimal.ZERO);
             BigDecimal interestThisMonth = calculateMonthlyInterest(effectivePrincipal, currentAnnualRate);
-            BigDecimal interestSaverOffset = remainingPrincipal.compareTo(effectivePrincipal) > 0
-                    ? calculateMonthlyInterest(remainingPrincipal.subtract(effectivePrincipal), currentAnnualRate)
-                    : BigDecimal.ZERO;
 
             // ── Step 4: ISA deposits / withdrawals ────────────────────────
             if (events.hasIsaEvent(month)) {

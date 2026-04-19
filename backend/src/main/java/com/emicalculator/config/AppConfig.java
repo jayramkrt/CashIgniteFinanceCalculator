@@ -28,8 +28,12 @@ public class AppConfig implements WebMvcConfigurer {
     }
 
     // ── Jackson (BigDecimal serialization, dates as ISO strings) ─────────
+    // @Primary ensures this bean takes precedence over Spring Boot's auto-configured
+    // ObjectMapper. WRITE_BIGDECIMAL_AS_PLAIN prevents scientific notation (5E+6)
+    // so the React axios interceptor can safely parseFloat() all numeric strings.
 
     @Bean
+    @Primary
     public ObjectMapper objectMapper() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());

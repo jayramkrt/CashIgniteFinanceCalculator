@@ -96,16 +96,11 @@ public class ScenarioService {
         req.setAnnualInterestRate(s.getAnnualInterestRate());
         req.setTenureMonths(s.getTenureMonths());
         req.setFirstEmiDate(s.getFirstEmiDate());
-        req.setPrepayments(fromJsonList(s.getPrepaymentsJson(),
-                com.emicalculator.dto.request.PrepaymentDTO.class));
-        req.setInterestChanges(fromJsonList(s.getInterestChangesJson(),
-                com.emicalculator.dto.request.InterestChangeDTO.class));
-        req.setInterestSaverEntries(fromJsonList(s.getInterestSaverJson(),
-                com.emicalculator.dto.request.InterestSaverDTO.class));
-        req.setMoratorium(fromJson(s.getMoratoriumJson(),
-                com.emicalculator.dto.request.MoratoriumDTO.class));
-        req.setFees(fromJsonList(s.getFeesJson(),
-                com.emicalculator.dto.request.FeeDTO.class));
+        req.setPrepayments(fromJsonList(s.getPrepaymentsJson(), PrepaymentDTO.class));
+        req.setInterestChanges(fromJsonList(s.getInterestChangesJson(), InterestChangeDTO.class));
+        req.setInterestSaverEntries(fromJsonList(s.getInterestSaverJson(), InterestSaverDTO.class));
+        req.setMoratorium(fromJson(s.getMoratoriumJson(), MoratoriumDTO.class));
+        req.setFees(fromJsonList(s.getFeesJson(), FeeDTO.class));
         return req;
     }
 
