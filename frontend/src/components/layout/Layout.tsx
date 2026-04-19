@@ -1,11 +1,11 @@
 import { NavLink } from 'react-router-dom'
-import { Calculator, BarChart3, History } from 'lucide-react'
+import { Calculator, BarChart3 } from 'lucide-react'  // History removed (DB disabled)
 import { cn } from '@/utils'
 
 const NAV = [
   { to: '/',           label: 'Calculator', icon: Calculator },
   { to: '/statistics', label: 'Statistics', icon: BarChart3  },
-  { to: '/history',    label: 'History',    icon: History     },
+  // { to: '/history', label: 'History', icon: History },  // DB disabled
 ]
 
 export default function Layout({ children }: { children: React.ReactNode }) {

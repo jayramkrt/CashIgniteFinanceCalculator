@@ -14,9 +14,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 
-@RestController
-@RequestMapping("/api/scenarios")
-@CrossOrigin(origins = "${app.cors.allowed-origins:http://localhost:5173}")
+// @RestController  // DB disabled — uncomment when persistence is re-enabled
+// @RequestMapping("/api/scenarios")
+// @CrossOrigin(origins = "${app.cors.allowed-origins:http://localhost:5173}")
 @RequiredArgsConstructor
 @Tag(name = "Scenarios", description = "Save and retrieve named loan scenarios for history and comparison")
 public class ScenarioController {

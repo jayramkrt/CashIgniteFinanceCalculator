@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  * the user chooses to save a calculation for later reference).
  */
 @Slf4j
-@Service
+// @Service  // DB disabled — uncomment when persistence is re-enabled
 @RequiredArgsConstructor
 public class ScenarioService {
 

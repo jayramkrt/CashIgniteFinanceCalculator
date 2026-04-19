@@ -1,10 +1,10 @@
-import { useState } from 'react'
+// import { useState } from 'react'  // DB disabled (was used for save dialog state)
 import { useNavigate } from 'react-router-dom'
-import { Calculator, RotateCcw, BarChart3, Save } from 'lucide-react'
+import { Calculator, RotateCcw, BarChart3 /*, Save*/ } from 'lucide-react'  // Save disabled (DB disabled)
 import { motion, AnimatePresence } from 'framer-motion'
 import { useMutation } from '@tanstack/react-query'
 import { useLoanStore } from '@/stores/loanStore'
-import { loanApi, scenarioApi } from '@/api'
+import { loanApi /*, scenarioApi*/ } from '@/api'  // scenarioApi disabled (DB disabled)
 import { buildRequest } from '@/utils/buildRequest'
 import BaseLoanForm from '@/components/modules/BaseLoanForm'
 import {
@@ -19,8 +19,8 @@ import SummaryPanel from '@/components/output/SummaryPanel'
 export default function CalculatorPage() {
   const navigate  = useNavigate()
   const store     = useLoanStore()
-  const [saveLabel, setSaveLabel] = useState('')
-  const [showSave, setShowSave]   = useState(false)
+  // const [saveLabel, setSaveLabel] = useState('')  // DB disabled
+  // const [showSave, setShowSave]   = useState(false)
 
   // ── Calculate mutation ──────────────────────────────────────────────────
   const calcMutation = useMutation({
@@ -31,11 +31,11 @@ export default function CalculatorPage() {
     onSettled:  () => store.setLoading(false),
   })
 
-  // ── Save mutation ───────────────────────────────────────────────────────
-  const saveMutation = useMutation({
-    mutationFn: () => scenarioApi.save(buildRequest(useLoanStore.getState()), saveLabel || 'My Loan'),
-    onSuccess:  () => { setShowSave(false); setSaveLabel('') },
-  })
+  // ── Save mutation (DB disabled) ─────────────────────────────────────────
+  // const saveMutation = useMutation({
+  //   mutationFn: () => scenarioApi.save(buildRequest(useLoanStore.getState()), saveLabel || 'My Loan'),
+  //   onSuccess:  () => { setShowSave(false); setSaveLabel('') },
+  // })
 
   const handleCalculate = () => calcMutation.mutate()
   const handleReset     = () => { store.resetAll() }
@@ -118,6 +118,7 @@ export default function CalculatorPage() {
               >
                 <BarChart3 size={14} />
               </button>
+              {/* Save button disabled (DB disabled)
               <button
                 type="button"
                 onClick={() => setShowSave(true)}
@@ -126,45 +127,12 @@ export default function CalculatorPage() {
               >
                 <Save size={14} />
               </button>
+              */}
             </>
           )}
         </div>
 
-        {/* Save dialog (inline, no modal) */}
-        <AnimatePresence>
-          {showSave && (
-            <motion.div
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              className="card p-4 flex gap-2"
-            >
-              <input
-                type="text"
-                value={saveLabel}
-                onChange={(e) => setSaveLabel(e.target.value)}
-                placeholder="Scenario name (optional)"
-                className="input-field flex-1 text-sm"
-                onKeyDown={(e) => e.key === 'Enter' && saveMutation.mutate()}
-              />
-              <button
-                type="button"
-                onClick={() => saveMutation.mutate()}
-                disabled={saveMutation.isPending}
-                className="btn-primary text-sm px-4"
-              >
-                Save
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowSave(false)}
-                className="btn-ghost"
-              >
-                ✕
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Save dialog disabled (DB disabled) */}
       </div>
 
       {/* ── Right column: summary result ─────────────────────────────────── */}
