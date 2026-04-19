@@ -1,4 +1,4 @@
-# EMI Calculator – Spring Boot Backend
+# ClearHomeEMI Calculator – Spring Boot Backend
 
 Full-featured home loan EMI calculation engine supporting:
 - Reducing balance EMI
@@ -13,50 +13,122 @@ Full-featured home loan EMI calculation engine supporting:
 ## Project Structure
 
 ```
-src/main/java/com/emicalculator/
-├── EmiCalculatorApplication.java       # Entry point
+ClearHomeEMI/                               # Monorepo root
+├── docker-compose.yml                      # Backend + Postgres (local dev)
 │
-├── controller/
-│   ├── LoanController.java             # POST /api/loan/calculate, GET /api/loan/emi
-│   └── ScenarioController.java         # POST/GET /api/scenarios
+├── backend/                                # Spring Boot application
+│   ├── Dockerfile
+│   ├── pom.xml                             # Maven build (groupId: com.clearhomeemi)
+│   └── src/
+│       ├── main/
+│       │   ├── java/com/clearhomeemi/
+│       │   │   ├── ClearHomeEmiApplication.java     # Entry point
+│       │   │   │
+│       │   │   ├── config/
+│       │   │   │   ├── AppConfig.java               # CORS, Jackson, OpenAPI
+│       │   │   │   ├── RateLimitFilter.java          # Per-IP rate limiting (Bucket4j, @Order 1)
+│       │   │   │   └── SecurityHeadersFilter.java   # Security headers (CSP, HSTS, @Order 2)
+│       │   │   │
+│       │   │   ├── controller/
+│       │   │   │   ├── LoanController.java           # POST /api/loan/calculate, GET /api/loan/emi
+│       │   │   │   └── ScenarioController.java       # POST/GET /api/scenarios
+│       │   │   │
+│       │   │   ├── service/
+│       │   │   │   ├── LoanCalculationService.java  # Orchestration + DTO mapping
+│       │   │   │   └── ScenarioService.java          # History persistence
+│       │   │   │
+│       │   │   ├── engine/
+│       │   │   │   ├── MonthlyScheduleBuilder.java  # Core month-by-month engine
+│       │   │   │   ├── EventSorter.java              # Expands recurring events to month map
+│       │   │   │   └── model/                        # Internal domain models (not serialised)
+│       │   │   │       ├── CalculationResult.java
+│       │   │   │       ├── EngineModels.java
+│       │   │   │       ├── FeeEvent.java
+│       │   │   │       ├── InterestChangeEvent.java
+│       │   │   │       ├── IsaEvent.java
+│       │   │   │       ├── LoanSummary.java
+│       │   │   │       ├── MonthlyRow.java
+│       │   │   │       ├── PrepaymentEvent.java
+│       │   │   │       └── SortedEventMap.java
+│       │   │   │
+│       │   │   ├── dto/
+│       │   │   │   ├── request/
+│       │   │   │   │   ├── LoanRequestDTO.java       # Root request + Bean Validation
+│       │   │   │   │   ├── PrepaymentDTO.java
+│       │   │   │   │   ├── InterestChangeDTO.java
+│       │   │   │   │   ├── InterestSaverDTO.java
+│       │   │   │   │   ├── MoratoriumDTO.java
+│       │   │   │   │   ├── FeeDTO.java
+│       │   │   │   │   └── FeatureDTOs.java
+│       │   │   │   └── response/
+│       │   │   │       ├── CalculationResultDTO.java
+│       │   │   │       ├── SummaryDTO.java
+│       │   │   │       ├── MonthlyRowDTO.java
+│       │   │   │       ├── YearlyRowDTO.java
+│       │   │   │       ├── ResponseDTOs.java
+│       │   │   │       └── ScenarioSummaryDTO.java
+│       │   │   │
+│       │   │   ├── entity/
+│       │   │   │   └── LoanScenario.java             # JPA entity (JSONB feature blobs)
+│       │   │   │
+│       │   │   ├── repository/
+│       │   │   │   └── LoanScenarioRepository.java
+│       │   │   │
+│       │   │   └── exception/
+│       │   │       ├── GlobalExceptionHandler.java  # Validation + runtime error responses
+│       │   │       └── LoanCalculationException.java
+│       │   │
+│       │   └── resources/
+│       │       ├── application.properties           # Base config (Tomcat hardening, rate limits)
+│       │       ├── application-dev.properties       # H2 in-memory, Flyway disabled
+│       │       ├── application-prod.properties      # Env-var overrides (DB_URL, DB_USERNAME, ...)
+│       │       └── db/migration/
+│       │           └── V1__init_schema.sql          # Flyway migration (PostgreSQL)
+│       │
+│       └── test/java/com/clearhomeemi/
+│           └── engine/
+│               └── LoanCalculationEngineTest.java   # @ActiveProfiles("dev"), H2
 │
-├── service/
-│   ├── LoanCalculationService.java     # Orchestration + DTO mapping
-│   └── ScenarioService.java            # History persistence
-│
-├── engine/
-│   ├── MonthlyScheduleBuilder.java     # Core calculation engine
-│   ├── EventSorter.java                # Expands recurring events to month map
-│   └── model/
-│       └── EngineModels.java           # Internal domain models (not serialised)
-│
-├── dto/
-│   ├── request/
-│   │   ├── LoanRequestDTO.java         # Root request + Bean Validation
-│   │   └── FeatureDTOs.java            # Prepayment, InterestChange, ISA, Moratorium, Fee
-│   └── response/
-│       ├── ResponseDTOs.java           # CalculationResult, Summary, Monthly/Yearly rows
-│       └── ScenarioSummaryDTO.java     # History list item
-│
-├── entity/
-│   └── LoanScenario.java              # JPA entity (JSONB feature blobs)
-│
-├── repository/
-│   └── LoanScenarioRepository.java
-│
-├── exception/
-│   ├── GlobalExceptionHandler.java    # Validation + runtime error responses
-│   └── LoanCalculationException.java
-│
-└── config/
-    └── AppConfig.java                 # CORS, Jackson, OpenAPI
-
-src/main/resources/
-├── application.properties             # Shared config
-├── application-dev.properties         # H2 in-memory
-├── application-prod.properties        # PostgreSQL
-└── db/migration/
-    └── V1__init_schema.sql            # Flyway migration
+└── frontend/                               # React + Vite application
+    ├── Dockerfile
+    ├── docker-compose.fullstack.yml        # Full-stack: frontend + backend + Postgres
+    ├── nginx.conf
+    ├── index.html
+    ├── package.json
+    ├── tailwind.config.js
+    ├── vite.config.ts
+    └── src/
+        ├── main.tsx
+        ├── App.tsx
+        ├── index.css
+        ├── api/
+        │   └── index.ts                    # Axios client + request/response interceptors
+        ├── hooks/
+        │   └── useCalculation.ts           # API call hook with loading/error state
+        ├── stores/
+        │   └── loanStore.ts                # Zustand global state
+        ├── types/
+        │   └── index.ts                    # Shared TypeScript types
+        ├── utils/
+        │   ├── index.ts                    # formatCurrency, sliderPct, constants
+        │   └── buildRequest.ts             # Form state → API request mapper
+        ├── components/
+        │   ├── layout/
+        │   │   └── Layout.tsx              # App shell, nav
+        │   ├── ui/
+        │   │   └── index.tsx               # Shared: Toggle, SliderField, NumberInput,
+        │   │                               #   Select, DateInput, TableGrid, ModuleSection
+        │   ├── modules/
+        │   │   ├── BaseLoanForm.tsx         # Core loan inputs
+        │   │   └── FeatureModules.tsx       # Prepayments, rates, ISA, moratorium, fees
+        │   └── output/
+        │       ├── SummaryPanel.tsx         # Key metrics cards
+        │       ├── Charts.tsx               # Principal/interest bar + line charts
+        │       └── AmortizationTable.tsx    # Monthly/yearly schedule table
+        └── pages/
+            ├── CalculatorPage.tsx
+            ├── HistoryPage.tsx
+            └── StatisticsPage.tsx
 ```
 
 ---
@@ -209,9 +281,9 @@ Test coverage includes:
 
 ## Environment Variables (prod)
 
-| Variable       | Default                              | Description          |
-|----------------|--------------------------------------|----------------------|
-| `DB_URL`       | `jdbc:postgresql://localhost:5432/emidb` | PostgreSQL JDBC URL |
-| `DB_USERNAME`  | `emi_user`                           | DB username          |
-| `DB_PASSWORD`  | `changeme`                           | DB password          |
-| `SPRING_PROFILES_ACTIVE` | `dev`                    | Active profile       |
+| Variable       | Default                                        | Description          |
+|----------------|------------------------------------------------|----------------------|
+| `DB_URL`       | `jdbc:postgresql://localhost:5432/clearhomeemidb` | PostgreSQL JDBC URL |
+| `DB_USERNAME`  | `clearhomeemi_user`                            | DB username          |
+| `DB_PASSWORD`  | `changeme`                                     | DB password          |
+| `SPRING_PROFILES_ACTIVE` | `prod`                               | Active profile       |
