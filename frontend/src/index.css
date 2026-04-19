@@ -1,0 +1,192 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --page-bg: #F5F4F0;
+    --surface: #FFFFFF;
+    --surface-2: #F0EFE9;
+    --border: rgba(14,13,7,0.10);
+    --border-strong: rgba(14,13,7,0.18);
+    --text-primary: #0E0D07;
+    --text-secondary: #4F4D38;
+    --text-muted: #8A8770;
+    --accent: #4D7547;
+    --accent-light: #F0F4EF;
+    --accent-amber: #E09B12;
+    --accent-rose: #E43028;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--page-bg);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer components {
+  /* ── Card ─────────────────────────────────────────────────────────────── */
+  .card {
+    @apply bg-white rounded-2xl border border-ink-100 shadow-card;
+  }
+  .card-lg {
+    @apply bg-white rounded-3xl border border-ink-100 shadow-card-lg;
+  }
+
+  /* ── Module toggle section ────────────────────────────────────────────── */
+  .module-section {
+    @apply card p-0 overflow-hidden transition-all duration-300;
+  }
+  .module-header {
+    @apply flex items-center justify-between px-5 py-4 cursor-pointer select-none;
+  }
+
+  /* ── Form controls ────────────────────────────────────────────────────── */
+  .input-field {
+    @apply w-full bg-ink-50 border border-ink-100 rounded-xl px-4 py-2.5
+           font-mono text-sm text-ink-800 placeholder:text-ink-300
+           focus:outline-none focus:border-sage-400 focus:ring-2 focus:ring-sage-100
+           transition-all duration-150;
+  }
+  .select-field {
+    @apply input-field appearance-none cursor-pointer pr-9;
+  }
+  .label {
+    @apply block text-xs font-medium text-ink-500 mb-1.5 tracking-wide uppercase;
+  }
+
+  /* ── Slider ───────────────────────────────────────────────────────────── */
+  .slider {
+    @apply w-full h-1.5 appearance-none rounded-full cursor-pointer;
+    background: linear-gradient(to right, var(--accent) var(--pct, 50%), var(--surface-2) var(--pct, 50%));
+  }
+  .slider::-webkit-slider-thumb {
+    @apply appearance-none w-5 h-5 rounded-full bg-white border-2 border-sage-400
+           shadow-card cursor-grab active:cursor-grabbing;
+    -webkit-appearance: none;
+  }
+
+  /* ── Buttons ──────────────────────────────────────────────────────────── */
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-6 py-3 rounded-xl font-display font-600
+           bg-ink-900 text-white text-sm tracking-wide
+           hover:bg-ink-700 active:scale-[0.98] transition-all duration-150
+           disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-display font-500
+           bg-transparent border border-ink-200 text-ink-600 text-sm
+           hover:bg-ink-50 hover:border-ink-300 active:scale-[0.98]
+           transition-all duration-150;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm
+           text-ink-500 hover:text-ink-800 hover:bg-ink-50
+           transition-all duration-150;
+  }
+  .btn-accent {
+    @apply inline-flex items-center gap-2 px-6 py-3 rounded-xl font-display font-600
+           bg-sage-500 text-white text-sm tracking-wide
+           hover:bg-sage-600 active:scale-[0.98] transition-all duration-150;
+  }
+
+  /* ── Metric card ──────────────────────────────────────────────────────── */
+  .metric-card {
+    @apply flex flex-col gap-1 p-4 rounded-2xl bg-ink-50 border border-ink-100;
+  }
+  .metric-label {
+    @apply text-xs text-ink-400 font-medium uppercase tracking-widest;
+  }
+  .metric-value {
+    @apply text-xl font-display font-700 text-ink-900 tabular-nums;
+  }
+  .metric-value-lg {
+    @apply text-3xl font-display font-800 text-ink-900 tabular-nums tracking-tight;
+  }
+
+  /* ── Switch ───────────────────────────────────────────────────────────── */
+  .switch-track {
+    @apply relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent
+           transition-colors duration-200 ease-in-out;
+  }
+  .switch-thumb {
+    @apply pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow
+           ring-0 transition duration-200 ease-in-out;
+  }
+
+  /* ── Table ────────────────────────────────────────────────────────────── */
+  .amort-table {
+    @apply w-full text-sm;
+  }
+  .amort-table th {
+    @apply text-left py-3 px-4 text-xs font-medium text-ink-400 uppercase tracking-wide
+           border-b border-ink-100 bg-ink-50 sticky top-0;
+  }
+  .amort-table td {
+    @apply py-3 px-4 text-ink-700 border-b border-ink-50 font-mono text-xs tabular-nums;
+  }
+  .amort-table tr:hover td { @apply bg-sage-50; }
+  .amort-table tr.year-row td {
+    @apply font-medium text-ink-900 bg-ink-50 font-body not-italic text-sm;
+  }
+
+  /* ── Progress bar ─────────────────────────────────────────────────────── */
+  .progress-bar {
+    @apply h-1.5 rounded-full bg-ink-100 overflow-hidden;
+  }
+  .progress-fill {
+    @apply h-full rounded-full bg-sage-400 transition-all duration-700 ease-out;
+  }
+
+  /* ── Tooltip ──────────────────────────────────────────────────────────── */
+  .tooltip {
+    @apply absolute z-50 px-2.5 py-1.5 rounded-lg bg-ink-900 text-white text-xs
+           shadow-lg pointer-events-none whitespace-nowrap;
+  }
+
+  /* ── Badge ────────────────────────────────────────────────────────────── */
+  .badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium;
+  }
+  .badge-green  { @apply bg-sage-50  text-sage-700 border border-sage-100; }
+  .badge-amber  { @apply bg-amber-50 text-amber-700 border border-amber-100; }
+  .badge-rose   { @apply bg-rose-50  text-rose-600  border border-rose-100; }
+}
+
+/* ── Scrollbars ──────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+
+/* ── React DatePicker overrides ──────────────────────────────────────────── */
+.react-datepicker-wrapper { @apply w-full; }
+.react-datepicker-popper  { z-index: 9999 !important; }
+.react-datepicker {
+  @apply !font-body !border-ink-100 !rounded-2xl !shadow-card-lg !text-sm;
+}
+.react-datepicker__header {
+  @apply !bg-ink-50 !border-ink-100 !rounded-t-2xl;
+}
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  @apply !bg-sage-500 !rounded-lg;
+}
+.react-datepicker__day:hover {
+  @apply !bg-sage-50 !rounded-lg;
+}
+
+/* ── Number input - hide spinners ────────────────────────────────────────── */
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; }
