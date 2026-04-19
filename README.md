@@ -146,6 +146,8 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ### Option B — Docker Compose (Postgres)
 ```bash
 docker-compose up --build
+or
+docker compose up --build
 ```
 
 ---
