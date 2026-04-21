@@ -17,6 +17,8 @@ import {
 import SummaryPanel from '@/components/output/SummaryPanel'
 
 export default function CalculatorPage() {
+  document.title = 'Home Loan EMI Calculator | ClearHomeEMI'
+
   const navigate  = useNavigate()
   const store     = useLoanStore()
   // const [saveLabel, setSaveLabel] = useState('')  // DB disabled

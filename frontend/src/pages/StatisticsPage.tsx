@@ -16,6 +16,8 @@ function StatChip({ label, value }: { label: string; value: string }) {
 }
 
 export default function StatisticsPage() {
+  document.title = 'Loan Statistics & Amortization Schedule | ClearHomeEMI'
+
   const navigate = useNavigate()
   const { result } = useLoanStore()
 
