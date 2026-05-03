@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://clearhomeemi.vercel.app/sitemap.xml
+Sitemap: https://cashignite.in/sitemap.xml

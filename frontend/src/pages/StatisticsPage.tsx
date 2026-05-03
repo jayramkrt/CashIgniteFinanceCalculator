@@ -16,7 +16,7 @@ function StatChip({ label, value }: { label: string; value: string }) {
 }
 
 export default function StatisticsPage() {
-  document.title = 'Loan Statistics & Amortization Schedule | ClearHomeEMI'
+  document.title = 'Loan Statistics & Amortization Schedule | CashIgnite'
 
   const navigate = useNavigate()
   const { result } = useLoanStore()

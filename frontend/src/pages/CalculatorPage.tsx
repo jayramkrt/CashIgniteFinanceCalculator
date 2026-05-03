@@ -17,7 +17,7 @@ import {
 import SummaryPanel from '@/components/output/SummaryPanel'
 
 export default function CalculatorPage() {
-  document.title = 'Home Loan EMI Calculator | ClearHomeEMI'
+  document.title = 'Home Loan EMI Calculator | CashIgnite'
 
   const navigate  = useNavigate()
   const store     = useLoanStore()

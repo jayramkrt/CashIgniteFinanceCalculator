@@ -20,7 +20,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <span className="text-white text-xs font-display font-800">₹</span>
             </div>
             <span className="font-display font-700 text-ink-900 text-lg tracking-tight">
-              EMI<span className="text-sage-500">Calc</span>
+              Cash<span className="text-sage-500">Ignite</span>
             </span>
           </div>
 
