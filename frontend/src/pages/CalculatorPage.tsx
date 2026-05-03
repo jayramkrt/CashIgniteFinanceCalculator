@@ -4,7 +4,7 @@ import { Calculator, RotateCcw, BarChart3, CheckCircle, ChevronDown, ChevronUp }
 import { motion, AnimatePresence } from 'framer-motion'
 import { useMutation } from '@tanstack/react-query'
 import { useLoanStore } from '@/stores/loanStore'
-import { loanApi /*, scenarioApi*/ } from '@/api'  // scenarioApi disabled (DB disabled)
+import { loanApi } from '@/api'
 import { buildRequest } from '@/utils/buildRequest'
 import BaseLoanForm from '@/components/modules/BaseLoanForm'
 import {
@@ -16,7 +16,7 @@ import {
 } from '@/components/modules/FeatureModules'
 import SummaryPanel from '@/components/output/SummaryPanel'
 
-// ── Static info content ────────────────────────────────────────────────────
+// ── Static data ────────────────────────────────────────────────────────────
 
 const HOW_IT_HELPS = [
   {
@@ -68,6 +68,15 @@ const FAQS = [
   },
 ]
 
+const FORMULA_VARS = [
+  ['E', 'EMI amount',           'The fixed monthly payment you make to the lender'],
+  ['P', 'Principal amount',     'The loan amount sanctioned by the bank'],
+  ['R', 'Monthly interest rate','Annual interest rate ÷ 12 ÷ 100'],
+  ['N', 'Loan tenure',          'Total number of monthly instalments'],
+] as const
+
+// ── FAQ accordion item ─────────────────────────────────────────────────────
+
 function FaqItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false)
   return (
@@ -79,12 +88,12 @@ function FaqItem({ q, a }: { q: string; a: string }) {
       >
         <span className="text-sm font-display font-600 text-ink-800">{q}</span>
         {open
-          ? <ChevronUp size={15} className="text-ink-400 flex-shrink-0" />
+          ? <ChevronUp   size={15} className="text-ink-400 flex-shrink-0" />
           : <ChevronDown size={15} className="text-ink-400 flex-shrink-0" />
         }
       </button>
       {open && (
-        <div className="px-5 pb-4 text-sm text-ink-500 leading-relaxed border-t border-ink-100 pt-3">
+        <div className="px-5 pt-3 pb-4 text-sm text-ink-500 leading-relaxed border-t border-ink-100">
           {a}
         </div>
       )}
@@ -92,16 +101,14 @@ function FaqItem({ q, a }: { q: string; a: string }) {
   )
 }
 
-// ──────────────────────────────────────────────────────────────────────────
+// ── Page ───────────────────────────────────────────────────────────────────
+
 export default function CalculatorPage() {
   document.title = 'Home Loan EMI Calculator — CashIgnite'
 
-  const navigate  = useNavigate()
-  const store     = useLoanStore()
-  // const [saveLabel, setSaveLabel] = useState('')  // DB disabled
-  // const [showSave, setShowSave]   = useState(false)
+  const navigate = useNavigate()
+  const store    = useLoanStore()
 
-  // ── Calculate mutation ──────────────────────────────────────────────────
   const calcMutation = useMutation({
     mutationFn: () => loanApi.calculate(buildRequest(useLoanStore.getState())),
     onSuccess:  (data) => store.setResult(data),
@@ -110,86 +117,77 @@ export default function CalculatorPage() {
     onSettled:  () => store.setLoading(false),
   })
 
-  // ── Save mutation (DB disabled) ─────────────────────────────────────────
-  // const saveMutation = useMutation({
-  //   mutationFn: () => scenarioApi.save(buildRequest(useLoanStore.getState()), saveLabel || 'My Loan'),
-  //   onSuccess:  () => { setShowSave(false); setSaveLabel('') },
-  // })
-
   const handleCalculate = () => calcMutation.mutate()
-  const handleReset     = () => { store.resetAll() }
+  const handleReset     = () => store.resetAll()
 
   return (
     <div className="space-y-14">
-    <div className="grid grid-cols-1 xl:grid-cols-[420px_1fr] gap-6 items-start">
 
-      {/* ── Left column: inputs ──────────────────────────────────────────── */}
-      <div className="space-y-4">
+      {/* ── Calculator grid ─────────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 xl:grid-cols-[420px_1fr] gap-6 items-start">
 
-        {/* Base loan form card */}
-        <div className="card-lg p-6">
-          <h2 className="font-display font-700 text-ink-900 text-lg tracking-tight mb-5">
-            Loan details
-          </h2>
-          <BaseLoanForm />
-        </div>
+        {/* Left: inputs */}
+        <div className="space-y-4">
 
-        {/* Advanced features */}
-        <div className="space-y-2">
-          <p className="text-xs font-medium text-ink-400 uppercase tracking-widest px-1">
-            Advanced features
-          </p>
-          <PrepaymentModule />
-          <VariableRateModule />
-          <InterestSaverModule />
-          <MoratoriumModule />
-          <FeesModule />
-        </div>
+          <div className="card-lg p-6">
+            <h2 className="font-display font-700 text-ink-900 text-lg tracking-tight mb-5">
+              Loan details
+            </h2>
+            <BaseLoanForm />
+          </div>
 
-        {/* Error message */}
-        <AnimatePresence>
-          {store.error && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="rounded-xl bg-rose-50 border border-rose-100 px-4 py-3 text-sm text-rose-700"
-            >
-              {store.error}
-            </motion.div>
-          )}
-        </AnimatePresence>
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-ink-400 uppercase tracking-widest px-1">
+              Advanced features
+            </p>
+            <PrepaymentModule />
+            <VariableRateModule />
+            <InterestSaverModule />
+            <MoratoriumModule />
+            <FeesModule />
+          </div>
 
-        {/* Action buttons */}
-        <div className="flex gap-2 pt-1">
-          <button
-            type="button"
-            onClick={handleCalculate}
-            disabled={store.isLoading}
-            className="btn-accent flex-1 justify-center"
-          >
-            {store.isLoading ? (
-              <span className="flex items-center gap-2">
-                <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                Calculating…
-              </span>
-            ) : (
-              <>
-                <Calculator size={15} />
-                Calculate
-              </>
+          <AnimatePresence>
+            {store.error && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="rounded-xl bg-rose-50 border border-rose-100 px-4 py-3 text-sm text-rose-700"
+              >
+                {store.error}
+              </motion.div>
             )}
-          </button>
-          <button
-            type="button"
-            onClick={handleReset}
-            className="btn-secondary px-4"
-            title="Reset all"
-          >
-            <RotateCcw size={14} />
-          </button>
-          {store.result && (
-            <>
+          </AnimatePresence>
+
+          <div className="flex gap-2 pt-1">
+            <button
+              type="button"
+              onClick={handleCalculate}
+              disabled={store.isLoading}
+              className="btn-accent flex-1 justify-center"
+            >
+              {store.isLoading ? (
+                <span className="flex items-center gap-2">
+                  <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                  Calculating…
+                </span>
+              ) : (
+                <>
+                  <Calculator size={15} />
+                  Calculate
+                </>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={handleReset}
+              className="btn-secondary px-4"
+              title="Reset all"
+            >
+              <RotateCcw size={14} />
+            </button>
+            {store.result && (
               <button
                 type="button"
                 onClick={() => navigate('/statistics')}
@@ -198,147 +196,139 @@ export default function CalculatorPage() {
               >
                 <BarChart3 size={14} />
               </button>
-              {/* Save button disabled (DB disabled)
-              <button
-                type="button"
-                onClick={() => setShowSave(true)}
-                className="btn-secondary px-4"
-                title="Save scenario"
-              >
-                <Save size={14} />
-              </button>
-              */}
-            </>
+            )}
+          </div>
+        </div>
+
+        {/* Right: result */}
+        <div className="xl:sticky xl:top-20">
+          {store.result ? (
+            <SummaryPanel />
+          ) : (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-ink-100 flex items-center justify-center mb-4">
+                <Calculator size={22} className="text-ink-400" />
+              </div>
+              <p className="font-display font-600 text-ink-700 text-lg">Configure your loan</p>
+              <p className="text-sm text-ink-400 mt-1 max-w-xs">
+                Fill in the loan details above and click Calculate to see your EMI breakdown.
+              </p>
+            </div>
           )}
         </div>
-
-        {/* Save dialog disabled (DB disabled) */}
       </div>
 
-      {/* ── Right column: summary result ─────────────────────────────────── */}
-      <div className="xl:sticky xl:top-20">
-        {store.result ? (
-          <SummaryPanel />
-        ) : (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-14 h-14 rounded-2xl bg-ink-100 flex items-center justify-center mb-4">
-              <Calculator size={22} className="text-ink-400" />
-            </div>
-            <p className="font-display font-600 text-ink-700 text-lg">Configure your loan</p>
-            <p className="text-sm text-ink-400 mt-1 max-w-xs">
-              Fill in the loan details above and click Calculate to see your EMI breakdown.
+      {/* ── Informational / SEO content ─────────────────────────────────── */}
+      <div className="space-y-12 border-t border-ink-100 pt-10 max-w-3xl">
+
+        {/* Intro */}
+        <section className="space-y-4">
+          <h2 className="text-xl font-display font-700 text-ink-900 tracking-tight">
+            Home Loan EMI Calculator — Know Your EMI Before You Apply
+          </h2>
+          <p className="text-sm text-ink-500 leading-relaxed">
+            With property prices across Indian metros continuing to rise, most home buyers rely on
+            a housing loan to fund their purchase. Before approaching a lender, the single most
+            important number to know is your Equated Monthly Instalment (EMI) — the fixed amount
+            you will pay every month for the full tenure of the loan.
+          </p>
+          <p className="text-sm text-ink-500 leading-relaxed">
+            CashIgnite's home loan EMI calculator goes beyond the basic number. It lets you model
+            prepayments, future interest rate changes, moratorium periods, interest saver accounts,
+            and processing fees — so you get a complete picture of what your loan will actually cost.
+          </p>
+        </section>
+
+        {/* How it helps */}
+        <section className="space-y-5">
+          <h2 className="text-xl font-display font-700 text-ink-900 tracking-tight">
+            How does the EMI calculator help you?
+          </h2>
+          <p className="text-sm text-ink-500 leading-relaxed">
+            An EMI has two components — a principal component and an interest component. At the
+            start of your tenure the interest portion dominates; as months pass, the principal
+            portion grows. Understanding this split is key to planning prepayments effectively.
+          </p>
+          <div className="grid sm:grid-cols-2 gap-3">
+            {HOW_IT_HELPS.map(({ title, body }) => (
+              <div key={title} className="flex gap-3 p-4 rounded-xl bg-[var(--surface-2)] border border-ink-100">
+                <CheckCircle size={15} className="text-sage-500 flex-shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <p className="text-sm font-display font-600 text-ink-800">{title}</p>
+                  <p className="text-xs text-ink-500 leading-relaxed">{body}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Formula */}
+        <section className="space-y-5">
+          <h2 className="text-xl font-display font-700 text-ink-900 tracking-tight">
+            The EMI formula
+          </h2>
+          <p className="text-sm text-ink-500 leading-relaxed">
+            All EMI calculators use the standard reducing-balance formula:
+          </p>
+
+          <div className="rounded-xl bg-ink-900 text-white px-6 py-5 font-mono text-base sm:text-lg text-center tracking-wide">
+            {'E = [P × R × (1+R)'}
+            <sup className="text-xs">N</sup>
+            {'] / [(1+R)'}
+            <sup className="text-xs">N</sup>
+            {' − 1]'}
+          </div>
+
+          <div className="rounded-xl border border-ink-100 overflow-hidden text-sm">
+            {FORMULA_VARS.map(([sym, name, desc], i) => (
+              <div
+                key={sym}
+                className={`grid grid-cols-[2rem_1fr_2fr] gap-4 px-5 py-3 ${i % 2 === 0 ? 'bg-[var(--surface-2)]' : 'bg-white'}`}
+              >
+                <span className="font-mono font-700 text-ink-900">{sym}</span>
+                <span className="font-600 text-ink-800">{name}</span>
+                <span className="text-ink-500">{desc}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="rounded-xl border border-sage-200 bg-sage-50 px-5 py-4 space-y-2">
+            <p className="text-sm font-display font-600 text-ink-800">Worked example</p>
+            <p className="text-sm text-ink-600 leading-relaxed">
+              Loan amount <strong>₹50 lakh</strong> · Interest rate <strong>8.5% p.a.</strong> ·
+              Tenure <strong>20 years (240 months)</strong>
+            </p>
+            <p className="text-sm text-ink-600 leading-relaxed">
+              Monthly rate R = 8.5 ÷ 12 ÷ 100 = <strong>0.007083</strong>
+            </p>
+            <p className="text-sm text-ink-600 leading-relaxed">
+              EMI = [50,00,000 × 0.007083 × (1.007083)
+              <sup className="text-xs">240</sup>
+              ] / [(1.007083)
+              <sup className="text-xs">240</sup>
+              {' − 1] = '}
+              <strong className="text-sage-700">≈ ₹43,391 / month</strong>
+            </p>
+            <p className="text-xs text-ink-400 mt-1">
+              Total interest paid over 20 years ≈ ₹54.14 lakh — more than the principal itself.
+              This is why prepayments in early years make such a large difference.
             </p>
           </div>
-        )}
+        </section>
+
+        {/* FAQ */}
+        <section className="space-y-4">
+          <h2 className="text-xl font-display font-700 text-ink-900 tracking-tight">
+            Frequently asked questions
+          </h2>
+          <div className="space-y-2">
+            {FAQS.map(faq => (
+              <FaqItem key={faq.q} q={faq.q} a={faq.a} />
+            ))}
+          </div>
+        </section>
+
       </div>
-    </div>{/* end calculator grid */}
-
-    {/* ── Informational content (SEO) ─────────────────────────────────── */}
-    <div className="space-y-12 border-t border-ink-100 pt-10 max-w-3xl">
-
-      {/* Intro */}
-      <section className="space-y-4">
-        <h2 className="text-xl font-display font-700 text-ink-900 tracking-tight">
-          Home Loan EMI Calculator — Know Your EMI Before You Apply
-        </h2>
-        <p className="text-sm text-ink-500 leading-relaxed">
-          With property prices across Indian metros continuing to rise, most home buyers rely on
-          a housing loan to fund their purchase. Before approaching a lender, the single most
-          important number to know is your Equated Monthly Instalment (EMI) — the fixed amount
-          you will pay every month for the full tenure of the loan.
-        </p>
-        <p className="text-sm text-ink-500 leading-relaxed">
-          CashIgnite's home loan EMI calculator goes beyond the basic number. It lets you model
-          prepayments, future interest rate changes, moratorium periods, interest saver accounts,
-          and processing fees — so you get a complete picture of what your loan will actually cost.
-        </p>
-      </section>
-
-      {/* How it helps */}
-      <section className="space-y-5">
-        <h2 className="text-xl font-display font-700 text-ink-900 tracking-tight">
-          How does the EMI calculator help you?
-        </h2>
-        <p className="text-sm text-ink-500 leading-relaxed">
-          An EMI has two components — a principal component and an interest component. At the
-          start of your tenure the interest portion dominates; as months pass, the principal
-          portion grows. Understanding this split is key to planning prepayments effectively.
-        </p>
-        <div className="grid sm:grid-cols-2 gap-3">
-          {HOW_IT_HELPS.map(({ title, body }) => (
-            <div key={title} className="flex gap-3 p-4 rounded-xl bg-[var(--surface-2)] border border-ink-100">
-              <CheckCircle size={15} className="text-sage-500 flex-shrink-0 mt-0.5" />
-              <div className="space-y-1">
-                <p className="text-sm font-display font-600 text-ink-800">{title}</p>
-                <p className="text-xs text-ink-500 leading-relaxed">{body}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Formula */}
-      <section className="space-y-5">
-        <h2 className="text-xl font-display font-700 text-ink-900 tracking-tight">
-          The EMI formula
-        </h2>
-        <p className="text-sm text-ink-500 leading-relaxed">
-          All EMI calculators use the standard reducing-balance formula:
-        </p>
-
-        {/* Formula display */}
-        <div className="rounded-xl bg-ink-900 text-white px-6 py-5 font-mono text-base sm:text-lg text-center tracking-wide">
-          E = [P × R × (1+R)<sup className="text-xs">N</sup>] / [(1+R)<sup className="text-xs">N</sup> − 1]
-        </div>
-
-        {/* Variable table */}
-        <div className="rounded-xl border border-ink-100 overflow-hidden text-sm">
-          {[
-            ['E', 'EMI amount', 'The fixed monthly payment you make to the lender'],
-            ['P', 'Principal amount', 'The loan amount sanctioned by the bank'],
-            ['R', 'Monthly interest rate', 'Annual interest rate ÷ 12 ÷ 100'],
-            ['N', 'Loan tenure', 'Total number of monthly instalments'],
-          ].map(([sym, name, desc], i) => (
-            <div key={sym} className={`grid grid-cols-[2rem_1fr_2fr] gap-4 px-5 py-3 ${i % 2 === 0 ? 'bg-[var(--surface-2)]' : 'bg-white'}`}>
-              <span className="font-mono font-700 text-ink-900">{sym}</span>
-              <span className="font-600 text-ink-800">{name}</span>
-              <span className="text-ink-500">{desc}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* Worked example */}
-        <div className="rounded-xl border border-sage-200 bg-sage-50 px-5 py-4 space-y-2">
-          <p className="text-sm font-display font-600 text-ink-800">Worked example</p>
-          <p className="text-sm text-ink-600 leading-relaxed">
-            Loan amount <strong>₹50 lakh</strong> · Interest rate <strong>8.5% p.a.</strong> ·
-            Tenure <strong>20 years (240 months)</strong>
-          </p>
-          <p className="text-sm text-ink-600 leading-relaxed">
-            Monthly rate R = 8.5 ÷ 12 ÷ 100 = <strong>0.007083</strong>
-          </p>
-          <p className="text-sm text-ink-600 leading-relaxed">
-            EMI = [50,00,000 × 0.007083 × (1.007083)²⁴⁰] / [(1.007083)²⁴⁰ − 1]
-            = <strong className="text-sage-700">≈ ₹43,391 / month</strong>
-          </p>
-          <p className="text-xs text-ink-400 mt-1">
-            Total interest paid over 20 years ≈ ₹54.14 lakh — more than the principal itself.
-            This is why prepayments in early years make such a large difference.
-          </p>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="space-y-4">
-        <h2 className="text-xl font-display font-700 text-ink-900 tracking-tight">
-          Frequently asked questions
-        </h2>
-        <div className="space-y-2">
-          {FAQS.map(faq => <FaqItem key={faq.q} {...faq} />)}
-        </div>
-      </section>
-
-    </div>
     </div>
   )
 }
