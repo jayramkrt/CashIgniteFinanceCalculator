@@ -133,21 +133,90 @@ ClearHomeEMI/                               # Monorepo root
 
 ---
 
-## Quick Start (local dev)
+## Development Setup
 
-### Option A — H2 in-memory (zero setup)
+### Prerequisites
+
+| Tool | Version | Purpose |
+|------|---------|---------|
+| Java | 21+ | Backend runtime |
+| Maven | 3.9+ | Backend build tool |
+| Node.js | 18+ | Frontend runtime |
+| npm | 9+ | Frontend package manager |
+| Docker *(optional)* | 24+ | Run Postgres locally |
+
+---
+
+### 1 — Backend
+
+The backend defaults to **H2 in-memory** on the `dev` profile — no database setup needed.
+
 ```bash
+cd backend
 mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ```
-- API:      http://localhost:8080
-- Swagger:  http://localhost:8080/swagger-ui.html
-- H2 console: http://localhost:8080/h2-console
 
-### Option B — Docker Compose (Postgres)
+| URL | Description |
+|-----|-------------|
+| http://localhost:8080 | API base |
+| http://localhost:8080/swagger-ui.html | Interactive API docs |
+| http://localhost:8080/h2-console | H2 in-memory DB console |
+
+---
+
+### 2 — Frontend
+
+The Vite dev server runs on port 5173 and automatically proxies all `/api/*` requests to the backend at `localhost:8080`.
+
 ```bash
-docker-compose up --build
-or
+cd frontend
+npm install
+npm run dev
+```
+
+Open http://localhost:5173 in your browser.
+
+> Both the backend (step 1) and frontend (step 2) need to be running at the same time for the calculator to work.
+
+---
+
+### Running both in parallel (one-liner)
+
+From the monorepo root, open two terminals:
+
+```bash
+# Terminal 1 — backend
+cd backend && mvn spring-boot:run -Dspring-boot.run.profiles=dev
+
+# Terminal 2 — frontend
+cd frontend && npm install && npm run dev
+```
+
+---
+
+### Option B — Docker Compose (Postgres + full stack)
+
+Use this if you want to run the full stack with a real Postgres database:
+
+```bash
+# from the monorepo root
 docker compose up --build
+```
+
+| Service | URL |
+|---------|-----|
+| Frontend (Nginx) | http://localhost:80 |
+| Backend API | http://localhost:8080 |
+| Postgres | localhost:5432 |
+
+To stop and remove containers:
+```bash
+docker compose down
+```
+
+To also wipe the Postgres volume:
+```bash
+docker compose down -v
 ```
 
 ---

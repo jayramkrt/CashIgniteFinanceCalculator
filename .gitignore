@@ -1,0 +1,4 @@
+backend/target/classes/
+backend/target/maven-status/
+backend/target/test-classes/
+frontend/node_modules/

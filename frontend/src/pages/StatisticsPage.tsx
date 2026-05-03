@@ -16,7 +16,7 @@ function StatChip({ label, value }: { label: string; value: string }) {
 }
 
 export default function StatisticsPage() {
-  document.title = 'Loan Statistics & Amortization Schedule | CashIgnite'
+  document.title = 'Loan Statistics & Amortization Schedule — CashIgnite'
 
   const navigate = useNavigate()
   const { result } = useLoanStore()
@@ -33,7 +33,7 @@ export default function StatisticsPage() {
         </p>
         <button
           type="button"
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/emi-calculator')}
           className="btn-primary"
         >
           <ArrowLeft size={14} />
@@ -60,7 +60,7 @@ export default function StatisticsPage() {
             Loan started {formatDate(summary.loanStartDate)} · ends {formatDate(summary.loanEndDate)}
           </p>
         </div>
-        <button type="button" onClick={() => navigate('/')} className="btn-ghost">
+        <button type="button" onClick={() => navigate(-1)} className="btn-ghost">
           <ArrowLeft size={14} />
           Back
         </button>
