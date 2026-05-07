@@ -60,7 +60,9 @@ interface SliderFieldProps {
 export function SliderField({
   label, value, min, max, step = 1, onChange, format, hint
 }: SliderFieldProps) {
-  const pct = sliderPct(value, min, max)
+  // Clamp only the thumb/fill position — the label always shows the real value
+  const sliderVal = Math.min(Math.max(value, min), max)
+  const pct = sliderPct(sliderVal, min, max)
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
@@ -72,7 +74,7 @@ export function SliderField({
       <input
         type="range"
         min={min} max={max} step={step}
-        value={value}
+        value={sliderVal}
         onChange={(e) => onChange(Number(e.target.value))}
         className="slider w-full"
         style={{ '--pct': pct } as React.CSSProperties}
@@ -90,15 +92,29 @@ export function SliderField({
 
 // ── Number input ──────────────────────────────────────────────────────────────
 
-interface NumberInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
+interface NumberInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'onBlur'> {
   label?: string
   prefix?: string
   suffix?: string
   error?: string
   onChange?: (v: number) => void
+  onBlur?: React.FocusEventHandler<HTMLInputElement>
 }
 
-export function NumberInput({ label, prefix, suffix, error, onChange, className, ...rest }: NumberInputProps) {
+export function NumberInput({ label, prefix, suffix, error, onChange, onBlur, className, ...rest }: NumberInputProps) {
+  const handleBlur: React.FocusEventHandler<HTMLInputElement> = (e) => {
+    if (onChange) {
+      const v = Number(e.target.value)
+      if (!isNaN(v) && isFinite(v)) {
+        const lo = rest.min !== undefined ? Number(rest.min) : -Infinity
+        const hi = rest.max !== undefined ? Number(rest.max) : Infinity
+        const clamped = Math.min(Math.max(v, lo), hi)
+        if (clamped !== v) onChange(clamped)
+      }
+    }
+    onBlur?.(e)
+  }
+
   return (
     <div>
       {label && <label className="label">{label}</label>}
@@ -118,6 +134,7 @@ export function NumberInput({ label, prefix, suffix, error, onChange, className,
             className
           )}
           onChange={(e) => onChange?.(Number(e.target.value))}
+          onBlur={handleBlur}
           {...rest}
         />
         {suffix && (
@@ -170,9 +187,11 @@ interface DateInputProps {
   label: string
   value: Date | null
   onChange: (d: Date | null) => void
+  minDate?: Date
+  maxDate?: Date
 }
 
-export function DateInput({ label, value, onChange }: DateInputProps) {
+export function DateInput({ label, value, onChange, minDate, maxDate }: DateInputProps) {
   return (
     <div>
       <label className="label">{label}</label>
@@ -185,6 +204,8 @@ export function DateInput({ label, value, onChange }: DateInputProps) {
         dropdownMode="select"
         className="input-field w-full"
         wrapperClassName="w-full"
+        minDate={minDate}
+        maxDate={maxDate}
       />
     </div>
   )

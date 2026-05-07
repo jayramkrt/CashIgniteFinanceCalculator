@@ -76,7 +76,7 @@ export function PrepaymentModule() {
               <NumberInput
                 value={row.amount}
                 onChange={(v) => onChange({ amount: v })}
-                prefix="₹" min={1} placeholder="1,00,000"
+                prefix="₹" min={1} max={50_000_000} placeholder="1,00,000"
               />
             ),
           },
@@ -86,7 +86,7 @@ export function PrepaymentModule() {
               <NumberInput
                 value={row.startingMonth}
                 onChange={(v) => onChange({ startingMonth: v })}
-                min={1} placeholder="12"
+                min={1} max={480} placeholder="12"
               />
             ),
           },
@@ -129,7 +129,7 @@ export function VariableRateModule() {
               <NumberInput
                 value={row.newAnnualRate}
                 onChange={(v) => onChange({ newAnnualRate: v })}
-                suffix="%" min={0.01} max={100} step={0.05} placeholder="9.00"
+                suffix="%" min={0.1} max={50} step={0.05} placeholder="9.00"
               />
             ),
           },
@@ -139,7 +139,7 @@ export function VariableRateModule() {
               <NumberInput
                 value={row.startingMonth}
                 onChange={(v) => onChange({ startingMonth: v })}
-                min={1} placeholder="13"
+                min={1} max={480} placeholder="13"
               />
             ),
           },
@@ -217,7 +217,7 @@ export function InterestSaverModule() {
               <NumberInput
                 value={row.amount}
                 onChange={(v) => onChange({ amount: v })}
-                prefix="₹" min={1} placeholder="10,000"
+                prefix="₹" min={1} max={10_000_000} placeholder="10,000"
               />
             ),
           },
@@ -227,7 +227,7 @@ export function InterestSaverModule() {
               <NumberInput
                 value={row.startingMonth}
                 onChange={(v) => onChange({ startingMonth: v })}
-                min={1} placeholder="1"
+                min={1} max={480} placeholder="1"
               />
             ),
           },
@@ -328,7 +328,7 @@ export function FeesModule() {
               <NumberInput
                 value={row.amount}
                 onChange={(v) => onChange({ amount: v })}
-                prefix="₹" min={1} placeholder="5,000"
+                prefix="₹" min={1} max={5_000_000} placeholder="5,000"
               />
             ),
           },
@@ -338,7 +338,7 @@ export function FeesModule() {
               <NumberInput
                 value={row.startingMonth}
                 onChange={(v) => onChange({ startingMonth: v })}
-                min={1} placeholder="12"
+                min={1} max={480} placeholder="12"
               />
             ),
           },

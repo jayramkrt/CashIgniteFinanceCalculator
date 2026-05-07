@@ -1,5 +1,6 @@
+import dayjs from 'dayjs'
 import { motion } from 'framer-motion'
-import { TrendingDown, Calendar, Percent, Wallet, PiggyBank, AlertCircle } from 'lucide-react'
+import { TrendingDown, Calendar, Percent, Wallet, PiggyBank, CalendarClock, ArrowRight } from 'lucide-react'
 import { useLoanStore } from '@/stores/loanStore'
 import { formatRupees, formatTenure, formatDate, formatPct, cn } from '@/utils'
 
@@ -52,12 +53,14 @@ function MetricCard({
 function DonutRing({ principal, interest, prepayment }: {
   principal: number; interest: number; prepayment: number
 }) {
-  const total = principal + interest + prepayment
+  // Prepayments are principal repayment — total is principal + interest, not +prepayment
+  const emiPrincipal = principal - prepayment
+  const total = principal + interest
   const r = 52
   const circ = 2 * Math.PI * r
-  const pPct  = principal / total
-  const iPct  = interest  / total
-  const ppPct = prepayment / total
+  const pPct  = emiPrincipal / total   // regular EMI principal portion
+  const iPct  = interest     / total
+  const ppPct = prepayment   / total
 
   const pLen  = circ * pPct
   const iLen  = circ * iPct
@@ -98,7 +101,7 @@ function DonutRing({ principal, interest, prepayment }: {
       <div className="absolute text-center">
         <p className="text-xs text-ink-400">interest</p>
         <p className="text-base font-display font-700 text-ink-900 leading-tight">
-          {Math.round((interest / total) * 100)}%
+          {Math.round(iPct * 100)}%
         </p>
       </div>
     </div>
@@ -229,30 +232,50 @@ export default function SummaryPanel() {
         />
       </div>
 
-      {/* ── Savings block (conditional) ────────────────────────────────── */}
-      {(hasISASaving || hasPrepSaving) && (
+      {/* ── Prepayment interest comparison ─────────────────────────────── */}
+      {hasPrepSaving && (
         <div className="card p-4 border-sage-100 bg-sage-50">
           <div className="flex items-center gap-2 mb-3">
             <PiggyBank size={15} className="text-sage-600" />
-            <p className="text-xs font-medium text-sage-700 uppercase tracking-widest">Interest saved</p>
+            <p className="text-xs font-medium text-sage-700 uppercase tracking-widest">Prepayment impact</p>
           </div>
           <div className="space-y-2">
-            {hasPrepSaving && (
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-sage-700">Via prepayments</span>
-                <span className="text-sm font-mono font-600 text-sage-800">
-                  {formatRupees(summary.interestSavedByPrepayment!, true)}
-                </span>
-              </div>
-            )}
-            {hasISASaving && (
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-sage-700">Via interest saver</span>
-                <span className="text-sm font-mono font-600 text-sage-800">
-                  {formatRupees(summary.interestSavedByInterestSaver!, true)}
-                </span>
-              </div>
-            )}
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-sage-700">Interest without prepayments</span>
+              <span className="text-sm font-mono font-600 text-ink-500 line-through tabular-nums">
+                {formatRupees(summary.totalInterestPayable + summary.interestSavedByPrepayment!, true)}
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-sage-700">Interest you actually paid</span>
+              <span className="text-sm font-mono font-700 text-sage-800 tabular-nums">
+                {formatRupees(summary.totalInterestPayable, true)}
+              </span>
+            </div>
+            <div className="flex justify-between items-center pt-2 border-t border-sage-200">
+              <span className="text-sm font-medium text-sage-800">You saved</span>
+              <span className="text-sm font-mono font-700 text-sage-700 tabular-nums">
+                {formatRupees(summary.interestSavedByPrepayment!, true)}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── ISA savings block (conditional) ───────────────────────────────── */}
+      {hasISASaving && (
+        <div className="card p-4 border-sage-100 bg-sage-50">
+          <div className="flex items-center gap-2 mb-3">
+            <PiggyBank size={15} className="text-sage-600" />
+            <p className="text-xs font-medium text-sage-700 uppercase tracking-widest">Interest saver impact</p>
+          </div>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-sage-700">Interest saved via ISA</span>
+              <span className="text-sm font-mono font-600 text-sage-800">
+                {formatRupees(summary.interestSavedByInterestSaver!, true)}
+              </span>
+            </div>
             {summary.interestSaverFinalBalance != null && (
               <div className="flex justify-between items-center pt-2 border-t border-sage-200">
                 <span className="text-sm text-sage-700">ISA closing balance</span>
@@ -265,18 +288,33 @@ export default function SummaryPanel() {
         </div>
       )}
 
-      {/* ── Original vs actual tenure (if different) ───────────────────── */}
+      {/* ── Loan closure timeline (if early closure) ───────────────────── */}
       {hasReduction && (
-        <div className="card p-4 flex items-start gap-3">
-          <AlertCircle size={15} className="text-sage-500 mt-0.5 flex-shrink-0" />
-          <div>
-            <p className="text-sm font-medium text-ink-800">Loan closes early</p>
-            <p className="text-xs text-ink-500 mt-0.5">
-              Original tenure {formatTenure(summary.originalTenureMonths)} →{' '}
-              actual {formatTenure(summary.actualTenureMonths)} (saves{' '}
-              {formatTenure(summary.tenureReducedByMonths!)} and{' '}
-              {formatRupees(summary.interestSavedByPrepayment ?? 0, true)} in interest)
-            </p>
+        <div className="card p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <CalendarClock size={15} className="text-ink-400" />
+            <p className="text-xs font-medium text-ink-500 uppercase tracking-widest">Loan closure</p>
+          </div>
+          <div className="space-y-2.5">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-ink-400 mb-0.5">Scheduled end</p>
+                <p className="text-sm font-mono font-600 text-ink-500 tabular-nums">
+                  {dayjs(summary.loanStartDate).add(summary.originalTenureMonths - 1, 'month').format('MMM YYYY')}
+                </p>
+                <p className="text-xs text-ink-300">{formatTenure(summary.originalTenureMonths)} tenure</p>
+              </div>
+              <ArrowRight size={14} className="text-sage-400 flex-shrink-0" />
+              <div className="text-right">
+                <p className="text-xs text-sage-600 mb-0.5">Early closure</p>
+                <p className="text-sm font-mono font-700 text-sage-700 tabular-nums">
+                  {dayjs(summary.loanEndDate).format('MMM YYYY')}
+                </p>
+                <p className="text-xs text-sage-500">
+                  saves {formatTenure(summary.tenureReducedByMonths!)}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       )}

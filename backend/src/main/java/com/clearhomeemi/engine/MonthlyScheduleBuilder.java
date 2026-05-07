@@ -245,9 +245,9 @@ public class MonthlyScheduleBuilder {
 
         // ── Build summary ─────────────────────────────────────────────────
         BigDecimal totalPrincipalPaid = principal; // fully repaid
+        // Prepayments are principal repayment — already included in totalPrincipalPaid, not added separately
         BigDecimal totalPayment = totalPrincipalPaid
                 .add(totalInterestPaid)
-                .add(totalPrepaymentPaid)
                 .add(totalFeesPaid);
 
         int tenureReduced = tenureMonths - (actualTenure - moratoriumMonths);

@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { devtools } from 'zustand/middleware'
+import { devtools, persist } from 'zustand/middleware'
 import dayjs from 'dayjs'
 import type {
   CalculationResultDTO,
@@ -93,49 +93,98 @@ const defaultLoan: BaseLoanState = {
   firstEmiDate: dayjs().add(1, 'month').startOf('month').toDate(),
 }
 
+const defaultFeatures = {
+  prepayment:   { enabled: false, entries: [] },
+  variableRate: { enabled: false, entries: [] },
+  isa:          { enabled: false, entries: [] },
+  moratorium:   { enabled: false, config: { durationMonths: 3, payInterestDuringMoratorium: true } },
+  fees:         { enabled: false, entries: [] },
+}
+
 export const useLoanStore = create<LoanStore>()(
-  devtools((set) => ({
-    // ── Base loan ─────────────────────────────────────────────────────────
-    loan: defaultLoan,
-    setLoan: (partial) => set((s) => ({ loan: { ...s.loan, ...partial } })),
+  devtools(
+    persist(
+      (set) => ({
+        // ── Base loan ───────────────────────────────────────────────────────
+        loan: defaultLoan,
+        setLoan: (partial) => set((s) => ({ loan: { ...s.loan, ...partial } })),
 
-    // ── Features ──────────────────────────────────────────────────────────
-    prepayment:   { enabled: false, entries: [] },
-    variableRate: { enabled: false, entries: [] },
-    isa:          { enabled: false, entries: [] },
-    moratorium:   { enabled: false, config: { durationMonths: 3, payInterestDuringMoratorium: true } },
-    fees:         { enabled: false, entries: [] },
+        // ── Features ────────────────────────────────────────────────────────
+        ...defaultFeatures,
 
-    // ── Toggles ───────────────────────────────────────────────────────────
-    togglePrepayment:   () => set((s) => ({ prepayment:   { ...s.prepayment,   enabled: !s.prepayment.enabled   } })),
-    toggleVariableRate: () => set((s) => ({ variableRate: { ...s.variableRate, enabled: !s.variableRate.enabled } })),
-    toggleIsa:          () => set((s) => ({ isa:          { ...s.isa,          enabled: !s.isa.enabled          } })),
-    toggleMoratorium:   () => set((s) => ({ moratorium:   { ...s.moratorium,   enabled: !s.moratorium.enabled   } })),
-    toggleFees:         () => set((s) => ({ fees:         { ...s.fees,         enabled: !s.fees.enabled         } })),
+        // ── Toggles ─────────────────────────────────────────────────────────
+        togglePrepayment:   () => set((s) => ({ prepayment:   { ...s.prepayment,   enabled: !s.prepayment.enabled   } })),
+        toggleVariableRate: () => set((s) => ({ variableRate: { ...s.variableRate, enabled: !s.variableRate.enabled } })),
+        toggleIsa:          () => set((s) => ({ isa:          { ...s.isa,          enabled: !s.isa.enabled          } })),
+        toggleMoratorium:   () => set((s) => ({ moratorium:   { ...s.moratorium,   enabled: !s.moratorium.enabled   } })),
+        toggleFees:         () => set((s) => ({ fees:         { ...s.fees,         enabled: !s.fees.enabled         } })),
 
-    // ── Entry mutations ───────────────────────────────────────────────────
-    setPrepaymentEntries:   (entries) => set((s) => ({ prepayment:   { ...s.prepayment,   entries } })),
-    setVariableRateEntries: (entries) => set((s) => ({ variableRate: { ...s.variableRate, entries } })),
-    setIsaEntries:          (entries) => set((s) => ({ isa:          { ...s.isa,          entries } })),
-    setMoratoriumConfig:    (config)  => set((s) => ({ moratorium:   { ...s.moratorium,   config  } })),
-    setFeeEntries:          (entries) => set((s) => ({ fees:         { ...s.fees,         entries } })),
+        // ── Entry mutations ──────────────────────────────────────────────────
+        setPrepaymentEntries:   (entries) => set((s) => ({ prepayment:   { ...s.prepayment,   entries } })),
+        setVariableRateEntries: (entries) => set((s) => ({ variableRate: { ...s.variableRate, entries } })),
+        setIsaEntries:          (entries) => set((s) => ({ isa:          { ...s.isa,          entries } })),
+        setMoratoriumConfig:    (config)  => set((s) => ({ moratorium:   { ...s.moratorium,   config  } })),
+        setFeeEntries:          (entries) => set((s) => ({ fees:         { ...s.fees,         entries } })),
 
-    // ── Result ────────────────────────────────────────────────────────────
-    result: null, isLoading: false, error: null,
-    setResult:  (result)  => set({ result, error: null }),
-    setLoading: (loading) => set({ isLoading: loading }),
-    setError:   (error)   => set({ error, isLoading: false }),
+        // ── Result ───────────────────────────────────────────────────────────
+        result: null, isLoading: false, error: null,
+        setResult:  (result)  => set({ result, error: null }),
+        setLoading: (loading) => set({ isLoading: loading }),
+        setError:   (error)   => set({ error, isLoading: false }),
 
-    // ── Reset ─────────────────────────────────────────────────────────────
-    resetAll: () => set({
-      loan:         defaultLoan,
-      prepayment:   { enabled: false, entries: [] },
-      variableRate: { enabled: false, entries: [] },
-      isa:          { enabled: false, entries: [] },
-      moratorium:   { enabled: false, config: { durationMonths: 3, payInterestDuringMoratorium: true } },
-      fees:         { enabled: false, entries: [] },
-      result:       null,
-      error:        null,
-    }),
-  }), { name: 'loan-store' })
+        // ── Reset ────────────────────────────────────────────────────────────
+        resetAll: () => set({
+          loan: defaultLoan,
+          ...defaultFeatures,
+          result: null,
+          error:  null,
+        }),
+      }),
+      {
+        name: 'clearhomeemi-loan',
+        // Only persist data — not functions or transient UI state
+        partialize: (s) => ({
+          loan:        s.loan,
+          prepayment:  s.prepayment,
+          variableRate: s.variableRate,
+          isa:         s.isa,
+          moratorium:  s.moratorium,
+          fees:        s.fees,
+          result:      s.result,
+        }),
+        // Revive and validate persisted values — clamp any corrupted/out-of-range data
+        merge: (persisted, current) => {
+          const p = persisted as Partial<LoanStore> | null
+          if (!p) return current
+
+          const clamp = (v: unknown, lo: number, hi: number, fallback: number): number => {
+            const n = Number(v)
+            return isNaN(n) || !isFinite(n) ? fallback : Math.min(Math.max(n, lo), hi)
+          }
+
+          const reviveDate = (raw: unknown, fallback: Date): Date => {
+            const d = new Date(raw as string)
+            const y = d.getFullYear()
+            const now = new Date().getFullYear()
+            return isNaN(d.getTime()) || y < now - 20 || y > now + 3 ? fallback : d
+          }
+
+          const pl = p.loan as (BaseLoanState & { firstEmiDate: unknown }) | undefined
+          return {
+            ...current,
+            ...p,
+            loan: {
+              ...current.loan,
+              ...pl,
+              loanAmount:         clamp(pl?.loanAmount,         100_000, 100_000_000, current.loan.loanAmount),
+              annualInterestRate: clamp(pl?.annualInterestRate, 0.1,     50,          current.loan.annualInterestRate),
+              tenureMonths:       clamp(pl?.tenureMonths,       1,       480,         current.loan.tenureMonths),
+              firstEmiDate:       reviveDate(pl?.firstEmiDate,  current.loan.firstEmiDate),
+            },
+          }
+        },
+      }
+    ),
+    { name: 'loan-store' }
+  )
 )

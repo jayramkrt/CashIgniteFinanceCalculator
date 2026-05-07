@@ -1,14 +1,15 @@
 import { Link, NavLink } from 'react-router-dom'
-import { Calculator, BarChart3, TrendingUp, PiggyBank, GitCompare } from 'lucide-react'
+import { Calculator, BarChart3, Receipt, PiggyBank, GitCompare } from 'lucide-react'  // History removed (DB disabled)
 import { cn } from '@/utils'
 
 const NAV = [
-  { to: '/emi-calculator', label: 'EMI Calculator', icon: Calculator },
-  { to: '/statistics',     label: 'Statistics',     icon: BarChart3  },
+  { to: '/emi-calculator', label: 'EMI Calculator',      icon: Calculator },
+  { to: '/statistics',     label: 'Statistics',          icon: BarChart3  },
+  { to: '/tax',            label: 'Income Tax Planner',  icon: Receipt    },
+  // { to: '/history', label: 'History', icon: History },  // DB disabled
 ]
 
 const NAV_SOON = [
-  { label: 'Income Tax',      icon: TrendingUp },
   { label: 'SIP Planner',     icon: PiggyBank  },
   { label: 'Loan Comparison', icon: GitCompare },
 ]
@@ -80,6 +81,37 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <main className="flex-1 min-w-0 px-8 py-8">
         {children}
       </main>
+
+      {/* ── Mobile bottom nav ────────────────────────────────────────────── */}
+      <nav className="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-white/90 backdrop-blur-md border-t border-ink-100 flex">
+        {NAV.map(({ to, label, icon: Icon }) => (
+          <NavLink
+            key={to}
+            to={to}
+            end={to === '/'}
+            className={({ isActive }) =>
+              cn(
+                'flex-1 flex flex-col items-center justify-center py-2.5 gap-1 text-xs transition-all duration-150',
+                isActive
+                  ? 'text-ink-900 font-medium'
+                  : 'text-ink-400 hover:text-ink-700'
+              )
+            }
+          >
+            {({ isActive }) => (
+              <>
+                <span className={cn(
+                  'flex items-center justify-center w-8 h-6 rounded-lg transition-colors duration-150',
+                  isActive ? 'bg-ink-900' : 'bg-transparent',
+                )}>
+                  <Icon size={14} className={isActive ? 'text-white' : 'text-ink-400'} />
+                </span>
+                <span>{label}</span>
+              </>
+            )}
+          </NavLink>
+        ))}
+      </nav>
     </div>
   )
 }

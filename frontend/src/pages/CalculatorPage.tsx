@@ -201,7 +201,7 @@ export default function CalculatorPage() {
         </div>
 
         {/* Right: result */}
-        <div className="xl:sticky xl:top-20">
+        <div className="xl:sticky xl:top-8">
           {store.result ? (
             <SummaryPanel />
           ) : (
