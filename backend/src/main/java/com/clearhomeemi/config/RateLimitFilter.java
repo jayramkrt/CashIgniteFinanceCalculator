@@ -56,10 +56,13 @@ public class RateLimitFilter implements Filter {
     }
 
     private String resolveClientIp(HttpServletRequest request) {
-        String forwarded = request.getHeader("X-Forwarded-For");
-        if (forwarded != null && !forwarded.isBlank()) {
-            return forwarded.split(",")[0].trim();
+        String remoteAddr = request.getRemoteAddr();
+        if ("127.0.0.1".equals(remoteAddr) || "0:0:0:0:0:0:0:1".equals(remoteAddr)) {
+            String forwarded = request.getHeader("X-Forwarded-For");
+            if (forwarded != null && !forwarded.isBlank()) {
+                return forwarded.split(",")[0].trim();
+            }
         }
-        return request.getRemoteAddr();
+        return remoteAddr;
     }
 }

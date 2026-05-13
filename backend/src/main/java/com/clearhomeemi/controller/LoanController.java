@@ -14,7 +14,6 @@ import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/api/loan")
-@CrossOrigin(origins = "${app.cors.allowed-origins:http://localhost:5173}")
 @RequiredArgsConstructor
 @Tag(name = "Loan Calculator", description = "EMI calculation and amortization schedule generation")
 public class LoanController {

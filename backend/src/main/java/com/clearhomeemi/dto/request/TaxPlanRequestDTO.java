@@ -15,7 +15,8 @@ public class TaxPlanRequestDTO {
     private String name;
 
     @NotBlank
-    private String financialYear; // "2025-26"
+    @Pattern(regexp = "^\\d{4}-\\d{2}$", message = "Financial year must be in YYYY-YY format (e.g. 2025-26)")
+    private String financialYear;
 
     @Valid
     @NotNull

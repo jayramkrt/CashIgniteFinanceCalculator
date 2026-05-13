@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.web.servlet.config.annotation.*;
 
+import java.util.Arrays;
+
 @Configuration
 public class AppConfig implements WebMvcConfigurer {
 
@@ -20,7 +22,7 @@ public class AppConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
-                .allowedOrigins(allowedOrigins.split(","))
+                .allowedOrigins(Arrays.stream(allowedOrigins.split(",")).map(String::trim).toArray(String[]::new))
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("Content-Type", "Accept", "X-Requested-With")
                 .allowCredentials(false)

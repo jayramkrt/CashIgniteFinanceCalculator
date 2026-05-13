@@ -1,0 +1,55 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build JAR
+        working-directory: backend
+        run: mvn clean package -DskipTests -q
+
+      - name: Copy JAR to Oracle VM
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          source: backend/target/clearhomeemi-backend-*.jar
+          target: /home/ubuntu/
+          strip_components: 2
+
+      - name: Deploy on Oracle VM
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          script: |
+            mv /home/ubuntu/clearhomeemi-backend-*.jar /home/ubuntu/app.jar
+            pkill -9 -f app.jar || true
+            sleep 3
+            nohup env SPRING_PROFILES_ACTIVE=prod \
+              DB_URL="${{ secrets.DB_URL }}" \
+              DB_USERNAME="${{ secrets.DB_USERNAME }}" \
+              DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+              ALLOWED_ORIGINS="${{ secrets.ALLOWED_ORIGINS }}" \
+              java -Xmx384m -XX:+UseSerialGC -jar /home/ubuntu/app.jar > /home/ubuntu/app.log 2>&1 &
+            sleep 15
+            curl -sf http://localhost:8080/actuator/health || exit 1

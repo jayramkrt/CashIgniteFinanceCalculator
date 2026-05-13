@@ -18,7 +18,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/tax-plans")
-@CrossOrigin(origins = "${app.cors.allowed-origins:http://localhost:5173}")
 @RequiredArgsConstructor
 @Tag(name = "Tax Plans", description = "Tax planning & declaration management")
 public class TaxPlanController {
