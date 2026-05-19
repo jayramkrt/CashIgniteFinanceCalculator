@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import {
   Calculator, TrendingUp, PiggyBank, GitCompare,
   ArrowRight, CheckCircle,
-  Banknote, RefreshCw, Clock, Landmark, Receipt, BarChart2,
+  Banknote, RefreshCw, Clock, Landmark, Receipt, BarChart2, ArrowUpRight,
 } from 'lucide-react'
 
 // ── Advanced features of the EMI calculator ────────────────────────────────
@@ -45,13 +45,19 @@ const EMI_FEATURES = [
   },
 ]
 
+// ── Available tools (besides EMI calculator) ────────────────────────────────
+const AVAILABLE_TOOLS = [
+  {
+    icon: Receipt,
+    to: '/tax',
+    title: 'Income Tax Planner',
+    desc: 'Compare old vs new regime side-by-side with full tax breakdown and optimal regime recommendation.',
+    color: 'bg-sage-50 text-sage-600',
+  },
+]
+
 // ── Upcoming tools ──────────────────────────────────────────────────────────
 const COMING_SOON = [
-  {
-    icon: TrendingUp,
-    title: 'Income Tax Calculator',
-    desc: 'Compare old vs new regime and find which saves you more.',
-  },
   {
     icon: PiggyBank,
     title: 'SIP & Investment Planner',
@@ -79,11 +85,11 @@ export default function HomePage() {
   document.title = 'CashIgnite — Free Financial Calculators for Indians'
 
   return (
-    <div className="space-y-20 pb-16">
+    <div className="space-y-10 sm:space-y-20 pb-8 sm:pb-16">
 
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
-      <section className="text-center pt-12 pb-4 space-y-6">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-sage-50 border border-sage-200 text-sage-600 text-xs font-medium tracking-wide">
+      <section className="text-center pt-6 sm:pt-12 pb-4 space-y-5 sm:space-y-6">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-sage-50 border border-sage-100 text-sage-600 text-xs font-medium tracking-wide">
           <span className="w-1.5 h-1.5 rounded-full bg-sage-500 animate-pulse" />
           Free · No login required · Always accurate
         </div>
@@ -112,7 +118,7 @@ export default function HomePage() {
 
       {/* ── Featured: EMI Calculator ──────────────────────────────────────── */}
       <section id="tools" className="space-y-4">
-        <div className="card p-7 sm:p-9 space-y-7">
+        <div className="card p-4 sm:p-7 lg:p-9 space-y-5 sm:space-y-7">
 
           {/* Header row */}
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
@@ -157,16 +163,44 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Coming soon tools ─────────────────────────────────────────────── */}
+      {/* ── Other available tools ─────────────────────────────────────────── */}
       <section className="space-y-5">
         <div className="flex items-center gap-3">
-          <h2 className="text-lg font-display font-700 text-ink-900 tracking-tight">More tools coming soon</h2>
+          <h2 className="text-lg font-display font-700 text-ink-900 tracking-tight">More tools</h2>
           <div className="flex-1 h-px bg-ink-100" />
         </div>
 
-        <div className="grid sm:grid-cols-3 gap-4">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {AVAILABLE_TOOLS.map(({ icon: Icon, to, title, desc, color }) => (
+            <Link key={title} to={to} className="card p-5 space-y-3 hover:shadow-card-lg transition-shadow duration-200 group">
+              <div className="flex items-center justify-between">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${color}`}>
+                  <Icon size={17} />
+                </div>
+                <span className="badge badge-green text-[10px]">Available now</span>
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-sm font-display font-600 text-ink-800 group-hover:text-ink-900 flex items-center gap-1">
+                  {title}
+                  <ArrowUpRight size={12} className="text-ink-300 group-hover:text-sage-500 transition-colors" />
+                </h3>
+                <p className="text-xs text-ink-500 leading-relaxed">{desc}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Coming soon tools ─────────────────────────────────────────────── */}
+      <section className="space-y-5">
+        <div className="flex items-center gap-3">
+          <h2 className="text-lg font-display font-700 text-ink-900 tracking-tight">Coming soon</h2>
+          <div className="flex-1 h-px bg-ink-100" />
+        </div>
+
+        <div className="grid sm:grid-cols-2 gap-4">
           {COMING_SOON.map(({ icon: Icon, title, desc }) => (
-            <div key={title} className="card p-5 space-y-3 opacity-60">
+            <div key={title} className="card p-5 space-y-3 opacity-50">
               <div className="flex items-center justify-between">
                 <div className="w-9 h-9 rounded-xl bg-ink-50 flex items-center justify-center">
                   <Icon size={17} className="text-ink-400" />

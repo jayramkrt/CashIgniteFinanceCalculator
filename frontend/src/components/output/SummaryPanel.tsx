@@ -76,7 +76,7 @@ function DonutRing({ principal, interest, prepayment }: {
         <circle cx="64" cy="64" r={r} fill="none" stroke="#E8E6DF" strokeWidth="14" />
         {/* Principal */}
         <circle cx="64" cy="64" r={r} fill="none"
-          stroke="#4D7547" strokeWidth="14"
+          stroke="#4F6EE8" strokeWidth="14"
           strokeDasharray={`${pLen} ${circ - pLen}`}
           strokeDashoffset={pOff}
           strokeLinecap="butt"
@@ -91,7 +91,7 @@ function DonutRing({ principal, interest, prepayment }: {
         {/* Prepayment */}
         {ppLen > 0 && (
           <circle cx="64" cy="64" r={r} fill="none"
-            stroke="#4D7547" strokeWidth="14" strokeOpacity="0.35"
+            stroke="#4F6EE8" strokeWidth="14" strokeOpacity="0.35"
             strokeDasharray={`${ppLen} ${circ - ppLen}`}
             strokeDashoffset={ppOff}
             strokeLinecap="butt"
@@ -156,7 +156,7 @@ export default function SummaryPanel() {
 
       {/* ── Donut + breakdown ──────────────────────────────────────────── */}
       <div className="card p-5">
-        <div className="flex items-center gap-5">
+        <div className="flex flex-col xs:flex-row items-center gap-5">
           <DonutRing
             principal={summary.totalPrincipal}
             interest={summary.totalInterestPayable}
@@ -176,7 +176,7 @@ export default function SummaryPanel() {
             {hasPrepayment && (
               <LegendItem
                 color="bg-sage-300"
-                label="Prepayments"
+                label="Prepayments (of principal)"
                 value={formatRupees(summary.totalPrepaymentAmount, true)}
               />
             )}
