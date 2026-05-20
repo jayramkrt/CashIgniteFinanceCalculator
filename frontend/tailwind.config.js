@@ -12,9 +12,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ['"DM Sans"', 'sans-serif'],
-        body:    ['"DM Sans"', 'sans-serif'],
-        mono:    ['"DM Mono"', 'monospace'],
+        display: ['"Inter"', 'sans-serif'],
+        body:    ['"Inter"', 'sans-serif'],
+        mono:    ['"Inter"', 'sans-serif'],
       },
       colors: {
         // Cool blue-slate neutrals

@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import SeoHead from '@/components/SeoHead'
 import { motion } from 'framer-motion'
 import { Plus, Receipt, Trash2, ArrowRight, BadgeCheck, ChevronRight } from 'lucide-react'
 import { useTaxPlanStore } from '@/stores/taxPlanStore'
@@ -129,8 +130,6 @@ function EmptyState({ onCreate }: { onCreate: () => void }) {
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 
 export default function TaxPlannerDashboard() {
-  document.title = 'Tax Planner | Old vs New Regime | ClearHomeEMI'
-
   const navigate = useNavigate()
   const { plans, isLoading, error, selectedFY, setSelectedFY, fetchPlans, deletePlan } = useTaxPlanStore()
 
@@ -139,6 +138,12 @@ export default function TaxPlannerDashboard() {
   const handleCreate = () => navigate('/tax/new')
 
   return (
+    <>
+    <SeoHead
+      title="Income Tax Planner — Old vs New Regime | CashIgnite"
+      description="Compare old vs new tax regime side-by-side. Get personalised tax savings recommendations for FY 2025-26. Free, instant, no login required."
+      canonical="https://cashignite.in/tax"
+    />
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
@@ -232,5 +237,6 @@ export default function TaxPlannerDashboard() {
         </>
       )}
     </motion.div>
+    </>
   )
 }

@@ -6,7 +6,7 @@ A clean financial dashboard built with React 18 + TypeScript + Vite.
 
 ## Design
 
-**Aesthetic**: Warm editorial — ink/parchment palette, Syne display font, DM Sans body, DM Mono numbers.  
+**Aesthetic**: Warm editorial — ink/parchment palette, Syne display font, 'Inter', sans-serif body, DM Mono numbers.  
 All monetary values use Indian locale (`en-IN`) formatting (₹12,34,567).  
 Framer Motion for entry animations. Recharts for data visualisation.
 

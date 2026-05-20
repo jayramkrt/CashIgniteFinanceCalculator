@@ -4,6 +4,7 @@ import {
   ArrowRight, CheckCircle,
   Banknote, RefreshCw, Clock, Landmark, Receipt, BarChart2, ArrowUpRight,
 } from 'lucide-react'
+import SeoHead from '@/components/SeoHead'
 
 // ── Advanced features of the EMI calculator ────────────────────────────────
 const EMI_FEATURES = [
@@ -82,9 +83,13 @@ const WHY = [
 
 // ───────────────────────────────────────────────────────────────────────────
 export default function HomePage() {
-  document.title = 'CashIgnite — Free Financial Calculators for Indians'
-
   return (
+    <>
+    <SeoHead
+      title="CashIgnite — Free Financial Calculators for Indians"
+      description="Free financial calculators for Indians — home loan EMI, income tax, SIP planner and more. Accurate, instant, no login required."
+      canonical="https://cashignite.in/"
+    />
     <div className="space-y-10 sm:space-y-20 pb-8 sm:pb-16">
 
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
@@ -269,5 +274,6 @@ export default function HomePage() {
       </section>
 
     </div>
+    </>
   )
 }

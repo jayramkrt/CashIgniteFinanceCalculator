@@ -126,7 +126,7 @@ export function PrincipalInterestLine() {
           />
           <Tooltip content={<ChartTooltip />} />
           <Legend
-            wrapperStyle={{ fontSize: '12px', fontFamily: 'DM Sans', color: '#4F4D38' }}
+            wrapperStyle={{ fontSize: '12px', fontFamily: 'Inter', color: '#4F4D38' }}
             iconType="square"
             iconSize={8}
           />

@@ -17,9 +17,7 @@ const NAV_SOON = [
 function Logo() {
   return (
     <Link to="/" className="flex items-center gap-2.5">
-      <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
-        <span className="text-white text-xs font-display font-800">₹</span>
-      </div>
+      <img src="/logo.png" alt="CashIgnite" className="w-8 h-8 rounded-lg flex-shrink-0" />
       <span className="font-display font-700 text-lg tracking-tight text-white">
         Cash<span style={{ color: '#7090F0' }}>Ignite</span>
       </span>

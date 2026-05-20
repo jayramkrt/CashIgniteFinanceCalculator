@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Calculator, RotateCcw, BarChart3, CheckCircle, ChevronDown, ChevronUp } from 'lucide-react'
+import SeoHead from '@/components/SeoHead'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useMutation } from '@tanstack/react-query'
 import { useLoanStore } from '@/stores/loanStore'
@@ -104,8 +105,6 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 // ── Page ───────────────────────────────────────────────────────────────────
 
 export default function CalculatorPage() {
-  document.title = 'Home Loan EMI Calculator — CashIgnite'
-
   const navigate = useNavigate()
   const store    = useLoanStore()
 
@@ -121,6 +120,12 @@ export default function CalculatorPage() {
   const handleReset     = () => store.resetAll()
 
   return (
+    <>
+    <SeoHead
+      title="Home Loan EMI Calculator — CashIgnite"
+      description="Calculate your home loan EMI instantly. Model prepayments, rate changes, moratorium and fees. Free, accurate, no login required."
+      canonical="https://cashignite.in/emi-calculator"
+    />
     <div className="space-y-14">
 
       {/* ── Calculator grid ─────────────────────────────────────────────── */}
@@ -330,5 +335,6 @@ export default function CalculatorPage() {
 
       </div>
     </div>
+    </>
   )
 }
