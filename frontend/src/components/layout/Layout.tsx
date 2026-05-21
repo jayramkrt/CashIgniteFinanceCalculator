@@ -1,17 +1,18 @@
 import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
-import { Calculator, BarChart3, Receipt, PiggyBank, GitCompare, Menu, X } from 'lucide-react'
+import { Calculator, BarChart3, Receipt, PiggyBank, GitCompare, Home, Menu, X } from 'lucide-react'
 import { cn } from '@/utils'
 
 const NAV = [
-  { to: '/emi-calculator', label: 'EMI Calculator',     icon: Calculator },
-  { to: '/statistics',     label: 'Statistics',         icon: BarChart3  },
-  { to: '/tax',            label: 'Income Tax Planner', icon: Receipt    },
+  { to: '/emi-calculator',   label: 'EMI Calculator',     icon: Calculator },
+  { to: '/statistics',       label: 'Statistics',         icon: BarChart3  },
+  { to: '/loan-comparison',  label: 'Loan Comparison',    icon: GitCompare },
+  { to: '/rent-vs-buy',      label: 'Rent vs Buy',        icon: Home       },
+  { to: '/tax',              label: 'Income Tax Planner', icon: Receipt    },
 ]
 
 const NAV_SOON = [
-  { label: 'SIP Planner',     icon: PiggyBank  },
-  { label: 'Loan Comparison', icon: GitCompare },
+  { label: 'SIP Planner', icon: PiggyBank },
 ]
 
 function Logo() {
@@ -193,9 +194,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {children}
       </main>
 
-      {/* ── Mobile bottom nav ────────────────────────────────────────────── */}
+      {/* ── Mobile bottom nav (show top 4 only) ─────────────────────────── */}
       <nav className="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-ink-100 flex safe-area-inset-bottom">
-        {NAV.map(({ to, label, icon: Icon }) => (
+        {NAV.slice(0, 4).map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}

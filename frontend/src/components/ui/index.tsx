@@ -93,8 +93,37 @@ export function SliderField({
 
 // ── Number input ──────────────────────────────────────────────────────────────
 
+// ── Info tooltip ──────────────────────────────────────────────────────────────
+
+export function InfoTooltip({ text }: { text: string }) {
+  const [show, setShow] = useState(false)
+  return (
+    <span className="relative inline-flex items-center ml-1 align-middle"
+      onMouseEnter={() => setShow(true)}
+      onMouseLeave={() => setShow(false)}
+    >
+      <Info size={11} className="text-ink-300 hover:text-ink-500 cursor-help transition-colors" />
+      {show && (
+        <span className="
+          absolute z-50 top-5 left-1/2 -translate-x-1/2
+          w-52 px-3 py-2 rounded-xl
+          bg-ink-900 text-white text-[11px] leading-relaxed
+          shadow-lg pointer-events-none whitespace-normal font-normal normal-case tracking-normal
+        ">
+          {/* caret */}
+          <span className="absolute -top-1.5 left-1/2 -translate-x-1/2 border-[6px] border-transparent border-b-ink-900" />
+          {text}
+        </span>
+      )}
+    </span>
+  )
+}
+
+// ── Number input ──────────────────────────────────────────────────────────────
+
 interface NumberInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'onBlur'> {
   label?: string
+  tooltip?: string
   prefix?: string
   suffix?: string
   error?: string
@@ -102,7 +131,7 @@ interface NumberInputProps extends Omit<React.InputHTMLAttributes<HTMLInputEleme
   onBlur?: React.FocusEventHandler<HTMLInputElement>
 }
 
-export function NumberInput({ label, prefix, suffix, error, onChange, onBlur, className, ...rest }: NumberInputProps) {
+export function NumberInput({ label, tooltip, prefix, suffix, error, onChange, onBlur, className, ...rest }: NumberInputProps) {
   const handleBlur: React.FocusEventHandler<HTMLInputElement> = (e) => {
     if (onChange) {
       const v = Number(e.target.value)
@@ -118,10 +147,15 @@ export function NumberInput({ label, prefix, suffix, error, onChange, onBlur, cl
 
   return (
     <div>
-      {label && <label className="label">{label}</label>}
+      {label && (
+        <label className="label">
+          {label}
+          {tooltip && <InfoTooltip text={tooltip} />}
+        </label>
+      )}
       <div className="relative">
         {prefix && (
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-ink-400 font-mono pointer-events-none">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-ink-400 pointer-events-none">
             {prefix}
           </span>
         )}
@@ -135,11 +169,12 @@ export function NumberInput({ label, prefix, suffix, error, onChange, onBlur, cl
             className
           )}
           onChange={(e) => onChange?.(Number(e.target.value))}
+          onFocus={(e) => e.target.select()}
           onBlur={handleBlur}
           {...rest}
         />
         {suffix && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-ink-400 font-mono pointer-events-none">
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-ink-400 pointer-events-none">
             {suffix}
           </span>
         )}
