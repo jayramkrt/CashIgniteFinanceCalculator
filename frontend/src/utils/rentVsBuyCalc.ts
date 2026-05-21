@@ -112,8 +112,6 @@ export function calculate(inputs: RentVsBuyInputs): RentVsBuyResult {
       const year        = month / 12
       const outstanding = month <= loanMonths ? remainingPrincipal(loanAmount, loanRate, loanMonths, month) : 0
       const buyNetWorth = propertyValue - outstanding
-      // Renter gets security deposit back at end (add it to final net worth)
-      const rentNetWorth = investmentValue + rentSavingsPool + (year === analysisYears ? securityDeposit : 0)
 
       if (breakEvenYear === null && buyNetWorth > (investmentValue + rentSavingsPool)) {
         breakEvenYear = year

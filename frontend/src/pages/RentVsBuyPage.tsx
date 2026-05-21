@@ -5,7 +5,7 @@ import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tool
 import { useRentVsBuyStore } from '@/stores/rentVsBuyStore'
 import { NumberInput } from '@/components/ui'
 import SeoHead from '@/components/SeoHead'
-import { formatRupees, formatPct, cn } from '@/utils'
+import { formatRupees, cn } from '@/utils'
 
 // ── FAQ ───────────────────────────────────────────────────────────────────────
 

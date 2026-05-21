@@ -73,7 +73,7 @@ function toRequest(s: ScenarioInput): LoanRequestDTO {
     loanAmount: s.loanAmount,
     annualInterestRate: s.annualInterestRate,
     tenureMonths: s.tenureMonths,
-    firstEmiDate: dayjs(s.firstEmiDate).format('YYYY-MM-DD') as unknown as Date,
+    firstEmiDate: dayjs(s.firstEmiDate).format('YYYY-MM-DD') as unknown as string,
     moratorium:           s.moratoriumEnabled   ? s.moratorium   : undefined,
     prepayments:          s.prepaymentEnabled   ? s.prepayments  : [],
     interestChanges:      s.variableRateEnabled ? s.variableRates : [],
