@@ -273,6 +273,7 @@ export default function LoanComparisonPage() {
         title="Loan Comparison Calculator — Compare Home Loans Side by Side | CashIgnite"
         description="Compare up to 3 home loan offers side by side. See EMI, total interest, and total payment for different banks and rates. Free, instant, no login required."
         canonical="https://cashignite.in/loan-comparison"
+        faqs={FAQS.map(f => ({ q: f.q, a: f.a }))}
       />
 
       <motion.div

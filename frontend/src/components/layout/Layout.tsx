@@ -1,27 +1,35 @@
 import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
-import { Calculator, BarChart3, Receipt, PiggyBank, GitCompare, Home, Menu, X } from 'lucide-react'
+import { Calculator, BarChart3, Receipt, PiggyBank, GitCompare, Home, LayoutDashboard, Menu, X, Zap } from 'lucide-react'
 import { cn } from '@/utils'
 
 const NAV = [
-  { to: '/emi-calculator',   label: 'EMI Calculator',     icon: Calculator },
-  { to: '/statistics',       label: 'Statistics',         icon: BarChart3  },
-  { to: '/loan-comparison',  label: 'Loan Comparison',    icon: GitCompare },
-  { to: '/rent-vs-buy',      label: 'Rent vs Buy',        icon: Home       },
-  { to: '/tax',              label: 'Income Tax Planner', icon: Receipt    },
+  { to: '/',                 label: 'Home',               mobileLabel: 'Home',    icon: LayoutDashboard },
+  { to: '/emi-calculator',   label: 'EMI Calculator',     mobileLabel: 'EMI',     icon: Calculator },
+  { to: '/loan-comparison',  label: 'Loan Comparison',    mobileLabel: 'Compare', icon: GitCompare },
+  { to: '/rent-vs-buy',      label: 'Rent vs Buy',        mobileLabel: 'Rent/Buy',icon: Home       },
+  { to: '/tax',              label: 'Income Tax Planner', mobileLabel: 'Tax',     icon: Receipt    },
+  { to: '/statistics',       label: 'Statistics',         mobileLabel: 'Stats',   icon: BarChart3  },
 ]
 
 const NAV_SOON = [
   { label: 'SIP Planner', icon: PiggyBank },
 ]
 
-function Logo() {
+function Logo({ showSubtitle = false }: { showSubtitle?: boolean }) {
   return (
     <Link to="/" className="flex items-center gap-2.5">
       <img src="/logo.png" alt="CashIgnite" className="w-8 h-8 rounded-lg flex-shrink-0" />
-      <span className="font-display font-700 text-lg tracking-tight text-white">
-        Cash<span style={{ color: '#7090F0' }}>Ignite</span>
-      </span>
+      <div>
+        <span className="font-display font-700 text-lg tracking-tight text-white leading-none block">
+          Cash<span style={{ color: '#7090F0' }}>Ignite</span>
+        </span>
+        {showSubtitle && (
+          <span className="text-[10px] leading-none" style={{ color: 'rgba(255,255,255,0.35)' }}>
+            Smart Financial Tools
+          </span>
+        )}
+      </div>
     </Link>
   )
 }
@@ -46,10 +54,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {/* Logo */}
         <Link
           to="/"
-          className="flex items-center gap-2.5 h-14 px-5 transition-colors duration-150"
+          className="flex items-center gap-2.5 h-16 px-5 transition-colors duration-150"
           style={{ borderBottom: '1px solid var(--sidebar-border)' }}
         >
-          <Logo />
+          <Logo showSubtitle />
         </Link>
 
         {/* Nav */}
@@ -66,7 +74,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 )
               }
               style={({ isActive }) => isActive
-                ? { background: 'var(--sidebar-active-bg)', color: 'var(--sidebar-active-text)' }
+                ? { background: 'linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%)', color: 'white' }
                 : { color: 'var(--sidebar-text)' }
               }
             >
@@ -98,6 +106,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </div>
           ))}
         </nav>
+
+        {/* 100% Free badge */}
+        <div className="px-4 py-4" style={{ borderTop: '1px solid var(--sidebar-border)' }}>
+          <div className="flex items-center gap-2 mb-1">
+            <Zap size={12} className="text-amber-400" />
+            <span className="text-xs font-semibold text-white">100% Free</span>
+          </div>
+          <p className="text-[11px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.35)' }}>
+            No sign-up. No tracking.<br />Just accurate results.
+          </p>
+        </div>
       </aside>
 
       {/* ── Mobile top header ────────────────────────────────────────────── */}
@@ -196,14 +215,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       {/* ── Mobile bottom nav (show top 4 only) ─────────────────────────── */}
       <nav className="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-ink-100 flex safe-area-inset-bottom">
-        {NAV.slice(0, 4).map(({ to, label, icon: Icon }) => (
+        {NAV.slice(0, 4).map(({ to, mobileLabel, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}
-            end={to === '/'}
+            end
             className={({ isActive }) =>
               cn(
-                'flex-1 flex flex-col items-center justify-center py-2.5 gap-1 text-xs transition-all duration-150',
+                'flex-1 flex flex-col items-center justify-center py-2.5 gap-1 transition-all duration-150',
                 isActive ? 'text-ink-900 font-medium' : 'text-ink-400 hover:text-ink-700'
               )
             }
@@ -216,7 +235,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 )}>
                   <Icon size={14} className={isActive ? 'text-white' : 'text-ink-400'} />
                 </span>
-                <span>{label}</span>
+                <span className="text-[10px] leading-none">{mobileLabel}</span>
               </>
             )}
           </NavLink>

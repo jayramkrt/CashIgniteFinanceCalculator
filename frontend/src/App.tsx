@@ -8,13 +8,11 @@ import TaxPlanDetailsPage from '@/pages/TaxPlanDetailsPage'
 import LoanComparisonPage from '@/pages/LoanComparisonPage'
 import RentVsBuyPage from '@/pages/RentVsBuyPage'
 import Layout from '@/components/layout/Layout'
-import LandingLayout from '@/components/layout/LandingLayout'
-
 export default function App() {
   return (
     <Layout>
       <Routes>
-        <Route path="/" element={<LandingLayout><HomePage /></LandingLayout>} />
+        <Route path="/" element={<HomePage />} />
         <Route path="/emi-calculator" element={<CalculatorPage />} />
         <Route path="/statistics" element={<StatisticsPage />} />
         <Route path="/loan-comparison" element={<LoanComparisonPage />} />

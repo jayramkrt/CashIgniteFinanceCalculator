@@ -5,9 +5,22 @@ interface SeoHeadProps {
   description: string
   canonical: string
   ogTitle?: string
+  faqs?: { q: string; a: string }[]
 }
 
-export default function SeoHead({ title, description, canonical, ogTitle }: SeoHeadProps) {
+export default function SeoHead({ title, description, canonical, ogTitle, faqs }: SeoHeadProps) {
+  const faqSchema = faqs && faqs.length > 0
+    ? JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faqs.map(({ q, a }) => ({
+          '@type': 'Question',
+          name: q,
+          acceptedAnswer: { '@type': 'Answer', text: a },
+        })),
+      })
+    : null
+
   return (
     <Helmet>
       <title>{title}</title>
@@ -18,6 +31,9 @@ export default function SeoHead({ title, description, canonical, ogTitle }: SeoH
       <meta property="og:description" content={description} />
       <meta name="twitter:title" content={ogTitle ?? title} />
       <meta name="twitter:description" content={description} />
+      {faqSchema && (
+        <script type="application/ld+json">{faqSchema}</script>
+      )}
     </Helmet>
   )
 }
