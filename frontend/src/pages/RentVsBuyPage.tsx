@@ -116,6 +116,7 @@ export default function RentVsBuyPage() {
         title="Rent vs Buy Calculator India — Should You Rent or Buy a Home? | CashIgnite"
         description="Compare renting vs buying a home in India. See break-even year, net worth comparison, and total cost over 20 years. Free calculator, no login required."
         canonical="https://cashignite.in/rent-vs-buy"
+        faqs={FAQS.map(f => ({ q: f.q, a: f.a }))}
       />
 
       <motion.div

@@ -26,31 +26,58 @@ public class RateLimitFilter implements Filter {
     @Value("${rate-limit.refill-per-minute:60}")
     private int refillPerMinute;
 
-    private final Map<String, Bucket> buckets = new ConcurrentHashMap<>();
+    @Value("${rate-limit.calculate.capacity:10}")
+    private int calculateCapacity;
+
+    @Value("${rate-limit.calculate.refill-per-minute:10}")
+    private int calculateRefillPerMinute;
+
+    private static final String CALCULATE_PATH = "/api/loan/calculate";
+
+    private final Map<String, Bucket> defaultBuckets   = new ConcurrentHashMap<>();
+    private final Map<String, Bucket> calculateBuckets = new ConcurrentHashMap<>();
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
 
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        HttpServletRequest httpRequest   = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
         String ip = resolveClientIp(httpRequest);
-        Bucket bucket = buckets.computeIfAbsent(ip, this::newBucket);
+        boolean isCalculate = CALCULATE_PATH.equals(httpRequest.getRequestURI());
+
+        Bucket bucket = isCalculate
+                ? calculateBuckets.computeIfAbsent(ip, k -> newCalculateBucket())
+                : defaultBuckets.computeIfAbsent(ip, k -> newDefaultBucket());
 
         if (bucket.tryConsume(1)) {
             chain.doFilter(request, response);
         } else {
+            long waitSeconds = bucket.getAvailableTokens() == 0 ? 60 : 1;
             httpResponse.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
             httpResponse.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            httpResponse.getWriter().write("{\"error\":\"Too many requests. Please slow down.\"}");
+            httpResponse.setHeader("Retry-After", String.valueOf(waitSeconds));
+            httpResponse.getWriter().write(
+                isCalculate
+                    ? "{\"error\":\"Too many calculation requests. Maximum 10 per minute. Please wait.\"}"
+                    : "{\"error\":\"Too many requests. Please slow down.\"}"
+            );
         }
     }
 
-    private Bucket newBucket(String ip) {
+    private Bucket newDefaultBucket() {
         Bandwidth limit = Bandwidth.builder()
                 .capacity(capacity)
                 .refillGreedy(refillPerMinute, Duration.ofMinutes(1))
+                .build();
+        return Bucket.builder().addLimit(limit).build();
+    }
+
+    private Bucket newCalculateBucket() {
+        Bandwidth limit = Bandwidth.builder()
+                .capacity(calculateCapacity)
+                .refillGreedy(calculateRefillPerMinute, Duration.ofMinutes(1))
                 .build();
         return Bucket.builder().addLimit(limit).build();
     }
