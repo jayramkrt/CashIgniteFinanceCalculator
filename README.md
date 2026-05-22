@@ -1,4 +1,4 @@
-# ClearHomeEMI Calculator – Spring Boot Backend
+# CashIgniteFinanceCalculator – Spring Boot Backend
 
 Full-featured home loan EMI calculation engine supporting:
 - Reducing balance EMI
@@ -13,7 +13,7 @@ Full-featured home loan EMI calculation engine supporting:
 ## Project Structure
 
 ```
-ClearHomeEMI/                               # Monorepo root
+CashIgniteFinanceCalculator/                               # Monorepo root
 ├── docker-compose.yml                      # Backend + Postgres (local dev)
 │
 ├── backend/                                # Spring Boot application
