@@ -270,8 +270,8 @@ export default function LoanComparisonPage() {
   return (
     <>
       <SeoHead
-        title="Loan Comparison Calculator — Compare Home Loans Side by Side | CashIgnite"
-        description="Compare up to 3 home loan offers side by side. See EMI, total interest, and total payment for different banks and rates. Free, instant, no login required."
+        title="Loan Comparison Calculator India — Compare Home Loan Interest Rates | CashIgnite"
+        description="Compare home loan offers from SBI, HDFC, ICICI & more side by side. See EMI, total interest & total cost instantly. Free, bank-accurate, no login."
         canonical="https://cashignite.in/loan-comparison"
         faqs={FAQS.map(f => ({ q: f.q, a: f.a }))}
       />

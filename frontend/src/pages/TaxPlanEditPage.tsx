@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Save, BadgeCheck, ChevronDown, ChevronUp } from 'lucide-react'
+import SeoHead from '@/components/SeoHead'
 import { useTaxPlanStore } from '@/stores/taxPlanStore'
 import { taxPlanApi } from '@/api/taxPlanApi'
 import { calculateOldRegime, calculateNewRegime } from '@/utils/taxCalc'
@@ -183,6 +184,13 @@ export default function TaxPlanEditPage() {
   }
 
   return (
+    <>
+    <SeoHead
+      title="Tax Plan Editor | CashIgnite"
+      description="Edit your income tax plan on CashIgnite."
+      canonical="https://cashignite.in/tax"
+      noIndex
+    />
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
@@ -314,5 +322,6 @@ export default function TaxPlanEditPage() {
         </div>
       </div>
     </motion.div>
+    </>
   )
 }

@@ -122,8 +122,8 @@ export default function CalculatorPage() {
   return (
     <>
     <SeoHead
-      title="Home Loan EMI Calculator — CashIgnite"
-      description="Calculate your home loan EMI instantly. Model prepayments, rate changes, moratorium and fees. Free, accurate, no login required."
+      title="Home Loan EMI Calculator India 2025 — Free & Accurate | CashIgnite"
+      description="Calculate home loan EMI instantly — supports prepayments, variable rates, moratorium & fees. Bank-accurate reducing balance formula. Free, no login."
       canonical="https://cashignite.in/emi-calculator"
       faqs={FAQS.map(f => ({ q: f.q, a: f.a }))}
     />

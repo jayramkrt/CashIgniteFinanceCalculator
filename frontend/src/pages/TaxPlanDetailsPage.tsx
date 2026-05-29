@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Edit2, BadgeCheck, Trash2 } from 'lucide-react'
+import SeoHead from '@/components/SeoHead'
 import { taxPlanApi } from '@/api/taxPlanApi'
 import { useTaxPlanStore } from '@/stores/taxPlanStore'
 import { formatRupees, formatPct, cn } from '@/utils'
@@ -173,6 +174,13 @@ export default function TaxPlanDetailsPage() {
   }
 
   return (
+    <>
+    <SeoHead
+      title="Tax Plan Details | CashIgnite"
+      description="View your income tax plan details on CashIgnite."
+      canonical="https://cashignite.in/tax"
+      noIndex
+    />
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
@@ -262,5 +270,6 @@ export default function TaxPlanDetailsPage() {
         <DeclarationCard plan={plan} />
       </div>
     </motion.div>
+    </>
   )
 }
