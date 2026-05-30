@@ -1,8 +1,11 @@
 import dayjs from 'dayjs'
+import { useRef, useState } from 'react'
 import { motion } from 'framer-motion'
-import { TrendingDown, Calendar, Percent, Wallet, PiggyBank, CalendarClock, ArrowRight } from 'lucide-react'
+import { TrendingDown, Calendar, Percent, Wallet, PiggyBank, CalendarClock, ArrowRight, Download } from 'lucide-react'
+import { toPng } from 'html-to-image'
 import { useLoanStore } from '@/stores/loanStore'
 import { formatRupees, formatTenure, formatDate, formatPct, cn } from '@/utils'
+import ShareCard from '@/components/ShareCard'
 
 // ── Animated metric card ──────────────────────────────────────────────────────
 
@@ -125,7 +128,30 @@ function LegendItem({ color, label, value }: { color: string; label: string; val
 // ── Main SummaryPanel ─────────────────────────────────────────────────────────
 
 export default function SummaryPanel() {
-  const { result } = useLoanStore()
+  const result             = useLoanStore(s => s.result)
+  const { loanAmount, annualInterestRate, tenureMonths } = useLoanStore(s => s.loan)
+  const shareRef   = useRef<HTMLDivElement>(null)
+  const [downloading, setDownloading] = useState(false)
+
+  const handleDownload = async () => {
+    if (!shareRef.current || !result) return
+    setDownloading(true)
+    try {
+      const el = shareRef.current
+      const dataUrl = await toPng(el, {
+        width: el.offsetWidth,
+        height: el.offsetHeight,
+        pixelRatio: 2,
+        cacheBust: true,
+      })
+      const link = document.createElement('a')
+      link.download = `cashignite-emi-${Date.now()}.png`
+      link.href = dataUrl
+      link.click()
+    } finally {
+      setDownloading(false)
+    }
+  }
 
   if (!result) return null
 
@@ -142,16 +168,50 @@ export default function SummaryPanel() {
       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
       className="space-y-4"
     >
+      {/* Invisible share card — opacity:0 keeps it in the render tree so html-to-image can capture it */}
+      <div aria-hidden style={{ position: 'fixed', top: 0, left: 0, opacity: 0, pointerEvents: 'none', zIndex: -999 }}>
+        <ShareCard
+          ref={shareRef}
+          result={result}
+          loanAmount={loanAmount}
+          annualRate={annualInterestRate}
+          tenureMonths={tenureMonths}
+        />
+      </div>
+
       {/* ── EMI headline ───────────────────────────────────────────────── */}
       <div className="card-lg p-6">
-        <p className="text-xs font-medium text-ink-400 uppercase tracking-widest mb-1">Monthly EMI</p>
-        <p className="text-4xl font-display font-800 text-ink-900 tabular-nums tracking-tight leading-none">
-          {formatRupees(summary.emiAmount)}
-        </p>
-        <p className="text-sm text-ink-400 mt-1.5">
-          {formatTenure(summary.actualTenureMonths)} ·{' '}
-          {formatDate(summary.loanStartDate)} → {formatDate(summary.loanEndDate)}
-        </p>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-xs font-medium text-ink-400 uppercase tracking-widest mb-1">Monthly EMI</p>
+            <p className="text-4xl font-display font-800 text-ink-900 tabular-nums tracking-tight leading-none">
+              {formatRupees(summary.emiAmount)}
+            </p>
+            <p className="text-sm text-ink-400 mt-1.5">
+              {formatTenure(summary.actualTenureMonths)} ·{' '}
+              {formatDate(summary.loanStartDate)} → {formatDate(summary.loanEndDate)}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleDownload}
+            disabled={downloading}
+            title="Download as image"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all shrink-0"
+            style={{
+              background: downloading ? 'rgba(124,58,237,0.08)' : 'rgba(124,58,237,0.08)',
+              color: '#7C3AED',
+              border: '1px solid rgba(124,58,237,0.18)',
+            }}
+          >
+            {downloading ? (
+              <span className="w-3.5 h-3.5 border-2 border-violet-300 border-t-violet-600 rounded-full animate-spin"/>
+            ) : (
+              <Download size={13}/>
+            )}
+            {downloading ? 'Saving…' : 'Save as PNG'}
+          </button>
+        </div>
       </div>
 
       {/* ── Donut + breakdown ──────────────────────────────────────────── */}
