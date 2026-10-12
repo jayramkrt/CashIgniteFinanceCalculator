@@ -10,19 +10,89 @@ export interface CreatePlanRequest {
   status?: string
 }
 
-const STORAGE_KEY = 'clearhomeemi_tax_plans'
+const DB_NAME = 'clearhomeemi'
+const DB_VERSION = 1
+const STORE_NAME = 'taxPlans'
+const LEGACY_STORAGE_KEY = 'clearhomeemi_tax_plans'
 
-function load(): TaxPlan[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    return raw ? (JSON.parse(raw) as TaxPlan[]) : []
-  } catch {
-    return []
-  }
+let databasePromise: Promise<IDBDatabase> | undefined
+let legacyMigrationPromise: Promise<void> | undefined
+
+function requestResult<T>(request: IDBRequest<T>): Promise<T> {
+  return new Promise((resolve, reject) => {
+    request.onsuccess = () => resolve(request.result)
+    request.onerror = () => reject(request.error ?? new Error('IndexedDB request failed'))
+  })
 }
 
-function persist(plans: TaxPlan[]): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(plans))
+function transactionDone(transaction: IDBTransaction): Promise<void> {
+  return new Promise((resolve, reject) => {
+    transaction.oncomplete = () => resolve()
+    transaction.onerror = () => reject(transaction.error ?? new Error('IndexedDB transaction failed'))
+    transaction.onabort = () => reject(transaction.error ?? new Error('IndexedDB transaction aborted'))
+  })
+}
+
+function openDatabase(): Promise<IDBDatabase> {
+  if (!databasePromise) {
+    databasePromise = new Promise((resolve, reject) => {
+      const request = indexedDB.open(DB_NAME, DB_VERSION)
+      request.onupgradeneeded = () => {
+        const database = request.result
+        if (!database.objectStoreNames.contains(STORE_NAME)) {
+          const store = database.createObjectStore(STORE_NAME, { keyPath: 'id' })
+          store.createIndex('financialYear', 'financialYear', { unique: false })
+        }
+      }
+      request.onsuccess = () => resolve(request.result)
+      request.onerror = () => reject(request.error ?? new Error('Unable to open browser storage'))
+    })
+  }
+  return databasePromise
+}
+
+async function migrateLegacyLocalStorage(database: IDBDatabase): Promise<void> {
+  if (!legacyMigrationPromise) {
+    legacyMigrationPromise = (async () => {
+      const raw = localStorage.getItem(LEGACY_STORAGE_KEY)
+      if (!raw) return
+      try {
+        const plans = JSON.parse(raw) as TaxPlan[]
+        const transaction = database.transaction(STORE_NAME, 'readwrite')
+        plans.forEach((plan) => transaction.objectStore(STORE_NAME).put(plan))
+        await transactionDone(transaction)
+        localStorage.removeItem(LEGACY_STORAGE_KEY)
+      } catch {
+        // Leave malformed legacy data untouched; IndexedDB remains usable.
+      }
+    })()
+  }
+  await legacyMigrationPromise
+}
+
+async function db(): Promise<IDBDatabase> {
+  const database = await openDatabase()
+  await migrateLegacyLocalStorage(database)
+  return database
+}
+
+async function loadAll(): Promise<TaxPlan[]> {
+  const database = await db()
+  const transaction = database.transaction(STORE_NAME, 'readonly')
+  return requestResult(transaction.objectStore(STORE_NAME).getAll()) as Promise<TaxPlan[]>
+}
+
+async function loadById(id: string): Promise<TaxPlan | undefined> {
+  const database = await db()
+  const transaction = database.transaction(STORE_NAME, 'readonly')
+  return requestResult(transaction.objectStore(STORE_NAME).get(id)) as Promise<TaxPlan | undefined>
+}
+
+async function put(plan: TaxPlan): Promise<void> {
+  const database = await db()
+  const transaction = database.transaction(STORE_NAME, 'readwrite')
+  transaction.objectStore(STORE_NAME).put(plan)
+  await transactionDone(transaction)
 }
 
 function withResults(plan: TaxPlan): TaxPlanWithResults {
@@ -34,8 +104,8 @@ function withResults(plan: TaxPlan): TaxPlanWithResults {
 }
 
 function toSummary(plan: TaxPlan): TaxPlanSummary {
-  const old  = calculateOldRegime(plan.earnings, plan.exemptions, plan.deductions, plan.financialYear)
-  const newR = calculateNewRegime(plan.earnings, plan.financialYear)
+  const old = calculateOldRegime(plan.earnings, plan.exemptions, plan.deductions, plan.financialYear)
+  const newRegime = calculateNewRegime(plan.earnings, plan.financialYear)
   return {
     id: plan.id,
     name: plan.name,
@@ -43,65 +113,65 @@ function toSummary(plan: TaxPlan): TaxPlanSummary {
     status: plan.status ?? 'DRAFT',
     grossIncome: old.grossIncome,
     oldRegimeTax: old.totalTax,
-    newRegimeTax: newR.totalTax,
+    newRegimeTax: newRegime.totalTax,
     createdAt: plan.createdAt ?? new Date().toISOString(),
     updatedAt: plan.updatedAt ?? new Date().toISOString(),
   }
 }
 
 export const taxPlanApi = {
-  list: (fy?: string): Promise<TaxPlanSummary[]> => {
-    const plans = load()
-    const filtered = fy ? plans.filter((p) => p.financialYear === fy) : plans
-    return Promise.resolve(filtered.map(toSummary))
+  list: async (financialYear?: string): Promise<TaxPlanSummary[]> => {
+    const plans = await loadAll()
+    return plans
+      .filter((plan) => !financialYear || plan.financialYear === financialYear)
+      .sort((a, b) => (b.updatedAt ?? '').localeCompare(a.updatedAt ?? ''))
+      .map(toSummary)
   },
 
-  getById: (id: string): Promise<TaxPlanWithResults> => {
-    const plan = load().find((p) => p.id === id)
-    if (!plan) return Promise.reject(new Error('Plan not found'))
-    return Promise.resolve(withResults(plan))
+  getById: async (id: string): Promise<TaxPlanWithResults> => {
+    const plan = await loadById(id)
+    if (!plan) throw new Error('Plan not found')
+    return withResults(plan)
   },
 
-  create: (req: CreatePlanRequest): Promise<TaxPlanWithResults> => {
-    const now  = new Date().toISOString()
+  create: async (request: CreatePlanRequest): Promise<TaxPlanWithResults> => {
+    const now = new Date().toISOString()
     const plan: TaxPlan = {
       id: crypto.randomUUID(),
-      name: req.name,
-      financialYear: req.financialYear,
-      earnings: req.earnings,
-      exemptions: req.exemptions,
-      deductions: req.deductions,
-      status: (req.status as TaxPlan['status']) ?? 'DRAFT',
+      name: request.name,
+      financialYear: request.financialYear,
+      earnings: request.earnings,
+      exemptions: request.exemptions,
+      deductions: request.deductions,
+      status: (request.status as TaxPlan['status']) ?? 'DRAFT',
       createdAt: now,
       updatedAt: now,
     }
-    const plans = load()
-    plans.push(plan)
-    persist(plans)
-    return Promise.resolve(withResults(plan))
+    await put(plan)
+    return withResults(plan)
   },
 
-  update: (id: string, req: CreatePlanRequest): Promise<TaxPlanWithResults> => {
-    const plans = load()
-    const idx   = plans.findIndex((p) => p.id === id)
-    if (idx === -1) return Promise.reject(new Error('Plan not found'))
+  update: async (id: string, request: CreatePlanRequest): Promise<TaxPlanWithResults> => {
+    const existing = await loadById(id)
+    if (!existing) throw new Error('Plan not found')
     const updated: TaxPlan = {
-      ...plans[idx],
-      name: req.name,
-      financialYear: req.financialYear,
-      earnings: req.earnings,
-      exemptions: req.exemptions,
-      deductions: req.deductions,
-      status: (req.status as TaxPlan['status']) ?? plans[idx].status,
+      ...existing,
+      name: request.name,
+      financialYear: request.financialYear,
+      earnings: request.earnings,
+      exemptions: request.exemptions,
+      deductions: request.deductions,
+      status: (request.status as TaxPlan['status']) ?? existing.status,
       updatedAt: new Date().toISOString(),
     }
-    plans[idx] = updated
-    persist(plans)
-    return Promise.resolve(withResults(updated))
+    await put(updated)
+    return withResults(updated)
   },
 
-  delete: (id: string): Promise<void> => {
-    persist(load().filter((p) => p.id !== id))
-    return Promise.resolve()
+  delete: async (id: string): Promise<void> => {
+    const database = await db()
+    const transaction = database.transaction(STORE_NAME, 'readwrite')
+    transaction.objectStore(STORE_NAME).delete(id)
+    await transactionDone(transaction)
   },
 }

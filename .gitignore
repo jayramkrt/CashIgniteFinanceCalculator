@@ -2,3 +2,7 @@ backend/target/classes/
 backend/target/maven-status/
 backend/target/test-classes/
 frontend/node_modules/
+backend/target/clearhomeemi-backend-1.0.0-SNAPSHOT.jar
+backend/target/clearhomeemi-backend-1.0.0-SNAPSHOT.jar.original
+.idea/
+frontend/dist/

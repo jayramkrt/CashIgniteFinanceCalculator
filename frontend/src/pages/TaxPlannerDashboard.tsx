@@ -133,7 +133,7 @@ export default function TaxPlannerDashboard() {
   const navigate = useNavigate()
   const { plans, isLoading, error, selectedFY, setSelectedFY, fetchPlans, deletePlan } = useTaxPlanStore()
 
-  useEffect(() => { fetchPlans(selectedFY) }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { fetchPlans(selectedFY) }, [])
 
   const handleCreate = () => navigate('/tax/new')
 

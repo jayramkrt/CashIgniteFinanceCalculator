@@ -142,6 +142,18 @@ export const useLoanStore = create<LoanStore>()(
       }),
       {
         name: 'clearhomeemi-loan',
+        version: 1,
+        migrate: (persisted) => {
+          const state = persisted as Partial<LoanStore>
+          return {
+            loan: state.loan,
+            prepayment: state.prepayment,
+            variableRate: state.variableRate,
+            isa: state.isa,
+            moratorium: state.moratorium,
+            fees: state.fees,
+          }
+        },
         // Only persist data — not functions or transient UI state
         partialize: (s) => ({
           loan:        s.loan,
@@ -150,7 +162,6 @@ export const useLoanStore = create<LoanStore>()(
           isa:         s.isa,
           moratorium:  s.moratorium,
           fees:        s.fees,
-          result:      s.result,
         }),
         // Revive and validate persisted values — clamp any corrupted/out-of-range data
         merge: (persisted, current) => {
@@ -173,6 +184,10 @@ export const useLoanStore = create<LoanStore>()(
           return {
             ...current,
             ...p,
+            // Calculation results are reproducible and deliberately not persisted.
+            result: null,
+            isLoading: false,
+            error: null,
             loan: {
               ...current.loan,
               ...pl,

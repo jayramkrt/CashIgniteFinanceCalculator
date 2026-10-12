@@ -3,9 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { Calculator, RotateCcw, BarChart3, CheckCircle, ChevronDown, ChevronUp } from 'lucide-react'
 import SeoHead from '@/components/SeoHead'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useMutation } from '@tanstack/react-query'
 import { useLoanStore } from '@/stores/loanStore'
-import { loanApi } from '@/api'
+import { calculateLoan } from '@/utils/loanCalc'
 import { buildRequest } from '@/utils/buildRequest'
 import BaseLoanForm from '@/components/modules/BaseLoanForm'
 import {
@@ -108,15 +107,16 @@ export default function CalculatorPage() {
   const navigate = useNavigate()
   const store    = useLoanStore()
 
-  const calcMutation = useMutation({
-    mutationFn: () => loanApi.calculate(buildRequest(useLoanStore.getState())),
-    onSuccess:  (data) => store.setResult(data),
-    onError:    (e: Error) => store.setError(e.message),
-    onMutate:   () => store.setLoading(true),
-    onSettled:  () => store.setLoading(false),
-  })
-
-  const handleCalculate = () => calcMutation.mutate()
+  const handleCalculate = () => {
+    store.setLoading(true)
+    try {
+      store.setResult(calculateLoan(buildRequest(useLoanStore.getState())))
+    } catch (error) {
+      store.setError(error instanceof Error ? error.message : 'Calculation failed')
+    } finally {
+      store.setLoading(false)
+    }
+  }
   const handleReset     = () => store.resetAll()
 
   return (

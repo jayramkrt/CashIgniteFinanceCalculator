@@ -108,16 +108,6 @@ export interface CalculationResultDTO {
   yearlySchedule: YearlyRowDTO[]
 }
 
-export interface ScenarioSummaryDTO {
-  id: number
-  scenarioName: string
-  loanAmount: number
-  annualInterestRate: number
-  tenureMonths: number
-  createdAt: string
-  summary: SummaryDTO
-}
-
 // ─── Form state (matches form fields, not raw DTOs) ───────────────────────────
 
 export interface LoanFormValues {

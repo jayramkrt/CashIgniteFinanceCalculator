@@ -9,7 +9,7 @@ import type {
   MoratoriumDTO,
   FeeDTO,
 } from '@/types'
-import { loanApi } from '@/api'
+import { calculateLoan } from '@/utils/loanCalc'
 
 // ── Scenario shape ────────────────────────────────────────────────────────────
 
@@ -125,7 +125,7 @@ export const useComparisonStore = create<ComparisonStore>()(
         const { scenarios } = get()
         set({ isLoading: true, error: null, results: scenarios.map(() => null) })
         try {
-          const results = await Promise.all(scenarios.map(s => loanApi.calculate(toRequest(s))))
+          const results = scenarios.map(s => calculateLoan(toRequest(s)))
           set({ results, isLoading: false })
         } catch (e: unknown) {
           set({ error: (e as Error).message ?? 'Comparison failed', isLoading: false })
